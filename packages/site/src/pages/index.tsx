@@ -1,19 +1,21 @@
-import { useContext } from 'react';
-import styled from 'styled-components';
-import { MetamaskActions, MetaMaskContext } from '../hooks';
+import { useContext, useEffect, useState } from "react";
+import styled from "styled-components";
+import { MetamaskActions, MetaMaskContext } from "../hooks";
 import {
   connectSnap,
   getSnap,
   sendHello,
   shouldDisplayReconnectButton,
-} from '../utils';
+} from "../utils";
 import {
   ConnectButton,
   InstallFlaskButton,
   ReconnectButton,
   SendHelloButton,
   Card,
-} from '../components';
+} from "../components";
+
+import { onTransaction } from "../../../snap/src/index";
 
 const Container = styled.div`
   display: flex;
@@ -101,6 +103,20 @@ const ErrorMessage = styled.div`
 
 const Index = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [account, setAccount] = useState("");
+
+  useEffect(() => {
+    const initializeAccount = async () => {
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+      setAccount(accounts[0]);
+      window.ethereum.on("accountsChanged", function (accounts) {
+        setAccount(accounts[0]);
+      });
+    };
+    initializeAccount();
+  }, [account]);
 
   const handleConnectClick = async () => {
     try {
@@ -119,7 +135,18 @@ const Index = () => {
 
   const handleSendHelloClick = async () => {
     try {
-      await sendHello();
+      // await sendHello();
+
+      fetch(
+        "https://api-goerli.etherscan.io/api?module=account&action=txlist&address=0x58fbf7339825D9Dcb0d37C19CD04485880c0a894&startblock=0&endblock=9999999999&sort=asc&apikey=1G563FEP4GAUAF4YUXJUBU363NB984HCWJ"
+        // "https://api-goerli.etherscan.io/api?module=account&action=balance&address=0x58fbf7339825D9Dcb0d37C19CD04485880c0a894&tag=latest&apikey=1G563FEP4GAUAF4YUXJUBU363NB984HCWJ"
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => console.log(data));
+
+      // console.log(account);
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -143,9 +170,9 @@ const Index = () => {
         {!state.isFlask && (
           <Card
             content={{
-              title: 'Install',
+              title: "Install",
               description:
-                'Snaps is pre-release software only available in MetaMask Flask, a canary distribution for developers with access to upcoming features.',
+                "Snaps is pre-release software only available in MetaMask Flask, a canary distribution for developers with access to upcoming features.",
               button: <InstallFlaskButton />,
             }}
             fullWidth
@@ -154,9 +181,9 @@ const Index = () => {
         {!state.installedSnap && (
           <Card
             content={{
-              title: 'Connect',
+              title: "Connect",
               description:
-                'Get started by connecting to and installing the example snap.',
+                "Get started by connecting to and installing the example snap.",
               button: (
                 <ConnectButton
                   onClick={handleConnectClick}
@@ -170,9 +197,9 @@ const Index = () => {
         {shouldDisplayReconnectButton(state.installedSnap) && (
           <Card
             content={{
-              title: 'Reconnect',
+              title: "Reconnect",
               description:
-                'While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.',
+                "While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.",
               button: (
                 <ReconnectButton
                   onClick={handleConnectClick}
@@ -185,9 +212,9 @@ const Index = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
+            title: "Send Hello message",
             description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+              "Display a custom message within a confirmation screen in MetaMask.",
             button: (
               <SendHelloButton
                 onClick={handleSendHelloClick}
@@ -204,7 +231,7 @@ const Index = () => {
         />
         <Notice>
           <p>
-            Please note that the <b>snap.manifest.json</b> and{' '}
+            Please note that the <b>snap.manifest.json</b> and{" "}
             <b>package.json</b> must be located in the server root directory and
             the bundle must be hosted at the location specified by the location
             field.
