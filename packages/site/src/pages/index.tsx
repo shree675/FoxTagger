@@ -133,7 +133,16 @@ const Index = () => {
 
   const handleSendHelloClick = async () => {
     try {
-      await sendHello();
+      // await sendHello();
+      console.log(process.env.REACT_APP_ACCOUNT_ADDRESS);
+
+      fetch(
+        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${process.env.REACT_APP_ACCOUNT_ADDRESS}&startblock=0&endblock=9999999999&sort=asc&apikey=${process.env.REACT_APP_API_KEY}`
+      )
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => console.log(data));
       // console.log(account);
     } catch (e) {
       console.error(e);
