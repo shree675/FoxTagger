@@ -15,8 +15,6 @@ import {
   Card,
 } from "../components";
 
-import { onTransaction } from "../../../snap/src/index";
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -135,17 +133,7 @@ const Index = () => {
 
   const handleSendHelloClick = async () => {
     try {
-      // await sendHello();
-
-      fetch(
-        "https://api-goerli.etherscan.io/api?module=account&action=txlist&address=0x58fbf7339825D9Dcb0d37C19CD04485880c0a894&startblock=0&endblock=9999999999&sort=asc&apikey=1G563FEP4GAUAF4YUXJUBU363NB984HCWJ"
-        // "https://api-goerli.etherscan.io/api?module=account&action=balance&address=0x58fbf7339825D9Dcb0d37C19CD04485880c0a894&tag=latest&apikey=1G563FEP4GAUAF4YUXJUBU363NB984HCWJ"
-      )
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => console.log(data));
-
+      await sendHello();
       // console.log(account);
     } catch (e) {
       console.error(e);

@@ -16,6 +16,8 @@ Clone the template-snap repository [using this template](https://github.com/Meta
 yarn install && yarn start
 ```
 
+Follow `.env.example`.
+
 ## Cloning
 
 This repository contains GitHub Actions that you may find useful, see `.github/workflows` and [Releasing & Publishing](https://github.com/MetaMask/template-snap-monorepo/edit/main/README.md#releasing--publishing) below for more information.
