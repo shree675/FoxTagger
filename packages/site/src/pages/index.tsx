@@ -6,6 +6,8 @@ import {
   getSnap,
   sendHello,
   shouldDisplayReconnectButton,
+  getStorage,
+  setStorage,
 } from '../utils';
 import {
   ConnectButton,
@@ -137,15 +139,17 @@ const Index = () => {
     try {
       // await sendHello();
 
-      fetch(
-        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=${process.env.REACT_APP_API_KEY}`,
-      )
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => console.log(data));
+      // fetch(
+      //   `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=${process.env.REACT_APP_API_KEY}`,
+      // )
+      //   .then((response) => {
+      //     return response.json();
+      //   })
+      //   .then((data) => console.log(data));
 
-      // console.log(account);
+      await setStorage();
+      const persistedData = await getStorage();
+      console.log(persistedData);
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });

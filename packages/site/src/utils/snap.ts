@@ -1,5 +1,5 @@
-import { defaultSnapOrigin } from "../config";
-import { GetSnapsResponse, Snap } from "../types";
+import { defaultSnapOrigin } from '../config';
+import { GetSnapsResponse, Snap } from '../types';
 
 /**
  * Get the installed snaps in MetaMask.
@@ -8,7 +8,7 @@ import { GetSnapsResponse, Snap } from "../types";
  */
 export const getSnaps = async (): Promise<GetSnapsResponse> => {
   return (await window.ethereum.request({
-    method: "wallet_getSnaps",
+    method: 'wallet_getSnaps',
   })) as unknown as GetSnapsResponse;
 };
 
@@ -20,10 +20,10 @@ export const getSnaps = async (): Promise<GetSnapsResponse> => {
  */
 export const connectSnap = async (
   snapId: string = defaultSnapOrigin,
-  params: Record<"version" | string, unknown> = {}
+  params: Record<'version' | string, unknown> = {},
 ) => {
   await window.ethereum.request({
-    method: "wallet_enable",
+    method: 'wallet_enable',
     params: [
       {
         wallet_snap: {
@@ -48,10 +48,10 @@ export const getSnap = async (version?: string): Promise<Snap | undefined> => {
 
     return Object.values(snaps).find(
       (snap) =>
-        snap.id === defaultSnapOrigin && (!version || snap.version === version)
+        snap.id === defaultSnapOrigin && (!version || snap.version === version),
     );
   } catch (e) {
-    console.log("Failed to obtain installed snap", e);
+    console.log('Failed to obtain installed snap', e);
     return undefined;
   }
 };
@@ -71,14 +71,38 @@ export const sendHello = async () => {
   //   ],
   // });
   await window.ethereum.request({
-    method: "wallet_invokeSnap",
+    method: 'wallet_invokeSnap',
     params: [
       defaultSnapOrigin,
       {
-        method: "notify",
+        method: 'notify',
       },
     ],
   });
 };
 
-export const isLocalSnap = (snapId: string) => snapId.startsWith("local:");
+export const getStorage = async () => {
+  return await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: [
+      defaultSnapOrigin,
+      {
+        method: 'getPersistentStorage',
+      },
+    ],
+  });
+};
+
+export const setStorage = async () => {
+  await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: [
+      defaultSnapOrigin,
+      {
+        method: 'setPersistentStorage',
+      },
+    ],
+  });
+};
+
+export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

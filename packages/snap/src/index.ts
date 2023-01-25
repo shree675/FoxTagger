@@ -54,6 +54,17 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           },
         ],
       });
+    case 'getPersistentStorage':
+      return await wallet.request({
+        method: 'snap_manageState',
+        params: ['get'],
+      });
+    case 'setPersistentStorage':
+      return await wallet.request({
+        method: 'snap_manageState',
+        params: ['update', { hello: 'world' }],
+      });
+
     default:
       throw new Error('Method not found.');
   }
