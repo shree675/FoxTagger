@@ -36,9 +36,7 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
   const used = storage.usage[tag].used;
   const limit = storage.usage[tag].limit;
   const amount = parseInt(transaction.value as string);
-  const gas =
-    parseInt(transaction.gasUsed as string) *
-    parseInt(transaction.gasPrice as string);
+  const gas = parseInt(transaction.gas as string);
   const total = amount + gas;
 
   let usedPercent = (used / limit) * 100.0;
