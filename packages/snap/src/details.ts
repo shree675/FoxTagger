@@ -1,34 +1,61 @@
-var counter = 0;
+import { getPersistentStorage, toEth } from './utils/functions';
+import {
+  NO_TAG_MESSAGE,
+  FOOTER_NOTE,
+  EXCEEDED_MESSAGE,
+  WILL_EXCEED_MESSAGE,
+} from './utils/constants';
 
-export const storeDetails = async (transaction: Record<string, unknown>) => {
-  //   console.log(transaction);
-  const newTransaction: { from: any; to: any; value: any } = {
-    from: transaction.from,
-    to: transaction.to,
-    value: transaction.value,
-  };
+/**
+ * Provides transaction insights.
+ *
+ * @param transaction - The transaction details.
+ * @returns 'insights' object.
+ * @throws If the persistent storage is empty.
+ * @throws If the persistent storage has incorrect fields.
+ */
+export const getDetails = async (transaction: Record<string, unknown>) => {
+  const toAddress = transaction.to as string;
+  const storage = (await getPersistentStorage()) as any;
 
-  console.log("transaction:", newTransaction);
+  if (!storage) {
+    throw new Error('Storage initialization failed.');
+  }
 
-  // await wallet.request({
-  //   method: "snap_manageState",
-  //   params: ["update", { hello: "world" }],
-  // });
+  if (!storage.mainMapping || !storage.usage) {
+    throw new Error('Data corrput. Please re-install the snap.');
+  }
 
-  // // returns null
-  // const persistedData = await wallet.request({
-  //   method: "snap_manageState",
-  //   params: ["get"],
-  // });
+  const tag = storage.mainMapping[toAddress];
+  if (!tag) {
+    return {
+      Tag: NO_TAG_MESSAGE,
+    };
+  }
 
-  // console.log(persistedData);
+  const used = storage.usage[tag].used;
+  const limit = storage.usage[tag].limit;
+  const amount = parseInt(transaction.value as string);
+  const gas =
+    parseInt(transaction.gasUsed as string) *
+    parseInt(transaction.gasPrice as string);
+  const total = amount + gas;
 
-  await wallet.request({
-    method: "snap_manageState",
-    params: ["clear"],
-  });
+  let usedPercent = (used / limit) * 100.0;
+
+  // rounding to two decimal places
+  usedPercent = Number(Math.round(parseFloat(usedPercent + 'e+2')) + 'e-2');
+
+  let usageMsg = usedPercent + '%';
+
+  if (used > limit) {
+    usageMsg += EXCEEDED_MESSAGE + toEth(limit);
+  } else if (used + total >= limit) {
+    usageMsg += WILL_EXCEED_MESSAGE + toEth(limit);
+  }
 
   return {
-    test: `${counter++}`,
+    Tag: tag,
+    Usage: usageMsg + FOOTER_NOTE,
   };
 };

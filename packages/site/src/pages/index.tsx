@@ -4,10 +4,9 @@ import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
   getSnap,
-  sendHello,
-  shouldDisplayReconnectButton,
   getStorage,
   setStorage,
+  shouldDisplayReconnectButton,
 } from '../utils';
 import {
   ConnectButton,
@@ -116,6 +115,15 @@ const Index = () => {
         //@ts-ignore
         setAccount(accounts[0]);
       });
+
+      // initialize persistent storage
+      const storage = await getStorage();
+      if (storage === null) {
+        await setStorage({
+          mainMapping: {},
+          usage: {},
+        });
+      }
     };
     initializeAccount();
   }, [account]);
@@ -137,19 +145,6 @@ const Index = () => {
 
   const handleSendHelloClick = async () => {
     try {
-      // await sendHello();
-
-      // fetch(
-      //   `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=${process.env.REACT_APP_API_KEY}`,
-      // )
-      //   .then((response) => {
-      //     return response.json();
-      //   })
-      //   .then((data) => console.log(data));
-
-      await setStorage();
-      const persistedData = await getStorage();
-      console.log(persistedData);
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });

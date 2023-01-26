@@ -7,7 +7,7 @@
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "MYOfj/ETV82voFm4wsX5DfcMyAzgkNgOZep0QBTMCro=",
+    "shasum": "4zvCNDrj77G3Zx7gL0lfQ5sTC0TSGIZpoi/4tH/dIeI=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -22,6 +22,7 @@
     "snap_notify": {},
     "snap_manageState": {},
     "endowment:transaction-insight": {},
+    "endowment:network-access": {},
     "endowment:cronjob": {
       "jobs": [
         {

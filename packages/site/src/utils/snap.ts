@@ -57,30 +57,10 @@ export const getSnap = async (version?: string): Promise<Snap | undefined> => {
 };
 
 /**
- * Invoke the "hello" method from the example snap.
+ * Get the persisted data from the snap.
+ *
+ * @returns The persisted data, if any, 'null' otherwise.
  */
-
-export const sendHello = async () => {
-  // await window.ethereum.request({
-  //   method: "wallet_invokeSnap",
-  //   params: [
-  //     defaultSnapOrigin,
-  //     {
-  //       method: "hello",
-  //     },
-  //   ],
-  // });
-  await window.ethereum.request({
-    method: 'wallet_invokeSnap',
-    params: [
-      defaultSnapOrigin,
-      {
-        method: 'notify',
-      },
-    ],
-  });
-};
-
 export const getStorage = async () => {
   return await window.ethereum.request({
     method: 'wallet_invokeSnap',
@@ -93,13 +73,19 @@ export const getStorage = async () => {
   });
 };
 
-export const setStorage = async () => {
+/**
+ * Update the persistent storage in the snap.
+ *
+ * @param data - The complete data to be stored.
+ */
+export const setStorage = async (data: Record<string, unknown> | void) => {
   await window.ethereum.request({
     method: 'wallet_invokeSnap',
     params: [
       defaultSnapOrigin,
       {
         method: 'setPersistentStorage',
+        params: data,
       },
     ],
   });

@@ -4,16 +4,8 @@ import {
   OnCronjobHandler,
 } from '@metamask/snap-types';
 
-import { storeDetails } from './details';
-
-/**
- * Get a message from the origin. For demonstration purposes only.
- *
- * @param originString - The origin string.
- * @returns A message based on the origin.
- */
-export const getMessage = (originString: string): string =>
-  `Hello, ${originString}!`;
+import { getDetails } from './details';
+import { getPersistentStorage, setPersistentStorage } from './utils/functions';
 
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
@@ -26,24 +18,8 @@ export const getMessage = (originString: string): string =>
  * @throws If the request method is not valid for this snap.
  * @throws If the `snap_confirm` call failed.
  */
-export const onRpcRequest: OnRpcRequestHandler = async ({
-  origin,
-  request,
-}) => {
+export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
   switch (request.method) {
-    case 'hello':
-      return wallet.request({
-        method: 'snap_confirm',
-        params: [
-          {
-            prompt: getMessage(origin),
-            description:
-              'This custom confirmation is just for display purposes.',
-            textAreaContent:
-              'But you can edit the snap source code to make it do something, if you want to!',
-          },
-        ],
-      });
     case 'notify':
       return wallet.request({
         method: 'snap_notify',
@@ -55,41 +31,38 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         ],
       });
     case 'getPersistentStorage':
-      return await wallet.request({
-        method: 'snap_manageState',
-        params: ['get'],
-      });
+      return await getPersistentStorage();
     case 'setPersistentStorage':
-      return await wallet.request({
-        method: 'snap_manageState',
-        params: ['update', { hello: 'world' }],
-      });
+      await setPersistentStorage(
+        request.params as void | Record<string, unknown>,
+      );
+      return;
 
     default:
       throw new Error('Method not found.');
   }
 };
 
+/**
+ * Intercept ongoing transactions.
+ *
+ * @param transaction - The transaction details of the ongoing transaction.
+ * @returns an 'insights' object.
+ */
 export const onTransaction: OnTransactionHandler = async ({ transaction }) => {
+  const insights = await getDetails(transaction);
+
   return {
-    insights: await storeDetails(transaction),
+    insights: insights,
   };
 };
 
-export const onCronjob: OnCronjobHandler = async ({ request }) => {
-  switch (request.method) {
-    case 'exampleMethodOne':
-      return wallet.request({
-        method: 'snap_notify',
-        params: [
-          {
-            type: 'inApp',
-            message: `Hello, world!`,
-          },
-        ],
-      });
+// export const onCronjob: OnCronjobHandler = async ({ request }) => {
+//   switch (request.method) {
+//     case 'exampleMethodOne':
+//       return;
 
-    default:
-      throw new Error('Method not found.');
-  }
-};
+//     default:
+//       throw new Error('Method not found.');
+//   }
+// };
