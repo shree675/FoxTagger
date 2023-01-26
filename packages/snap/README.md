@@ -21,11 +21,13 @@
     "usage": {
       "tag": {
         "limit": 100000000000,
-        "used": 800000
+        "used": 800000,
+        "notified": false
       },
       "tag": {
         "limit": 100000000000,
-        "used": 800000
+        "used": 800000,
+        "notified": false
       },
       ...
     }

@@ -3,8 +3,8 @@ import {
   OnTransactionHandler,
   OnCronjobHandler,
 } from '@metamask/snap-types';
-
-import { getDetails } from './details';
+import { checkLimits } from './cron';
+import { getDetails } from './transaction';
 import { getPersistentStorage, setPersistentStorage } from './utils/functions';
 
 /**
@@ -20,16 +20,6 @@ import { getPersistentStorage, setPersistentStorage } from './utils/functions';
  */
 export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
   switch (request.method) {
-    case 'notify':
-      return wallet.request({
-        method: 'snap_notify',
-        params: [
-          {
-            type: 'inApp',
-            message: `Hello, world!`,
-          },
-        ],
-      });
     case 'getPersistentStorage':
       return await getPersistentStorage();
     case 'setPersistentStorage':
@@ -57,12 +47,25 @@ export const onTransaction: OnTransactionHandler = async ({ transaction }) => {
   };
 };
 
-// export const onCronjob: OnCronjobHandler = async ({ request }) => {
-//   switch (request.method) {
-//     case 'exampleMethodOne':
-//       return;
-
-//     default:
-//       throw new Error('Method not found.');
-//   }
-// };
+export const onCronjob: OnCronjobHandler = async ({ request }) => {
+  switch (request.method) {
+    case 'walletSummary':
+      return;
+    case 'checkLimits':
+      const message = await checkLimits();
+      if (message !== null && message !== undefined) {
+        return wallet.request({
+          method: 'snap_notify',
+          params: [
+            {
+              type: 'inApp',
+              message: message,
+            },
+          ],
+        });
+      }
+      return;
+    default:
+      throw new Error('Method not found.');
+  }
+};
