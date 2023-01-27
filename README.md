@@ -22,6 +22,11 @@ yarn lint
 yarn lint:fix
 ```
 
+Run the below command if there are prettier errors/warnings:
+```shell
+npx prettier --write .
+```
+
 ### Releasing & Publishing
 
 The project follows the same release process as the other libraries in the MetaMask organization. The GitHub Actions [`action-create-release-pr`](https://github.com/MetaMask/action-create-release-pr) and [`action-publish-release`](https://github.com/MetaMask/action-publish-release) are used to automate the release process; see those repositories for more information about how they work.
