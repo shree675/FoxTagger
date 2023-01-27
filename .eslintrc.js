@@ -1,71 +1,44 @@
 module.exports = {
   root: true,
   parserOptions: {
-    sourceType: "module",
+    sourceType: 'module',
   },
 
-  extends: ["@metamask/eslint-config"],
-
-  "prettier/prettier": [
-    "error",
-    {
-      endOfLine: "auto",
-    },
-  ],
+  extends: ['@metamask/eslint-config'],
 
   overrides: [
     {
-      files: ["**/*.js"],
-      extends: ["@metamask/eslint-config-nodejs"],
+      files: ['**/*.js'],
+      extends: ['@metamask/eslint-config-nodejs'],
+    },
+
+    {
+      files: ['**/*.{ts,tsx}'],
+      extends: ['@metamask/eslint-config-typescript'],
       rules: {
-        "prettier/prettier": [
-          "error",
-          {
-            endOfLine: "auto",
-          },
-        ],
+        '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       },
     },
 
     {
-      files: ["**/*.{ts,tsx}"],
-      extends: ["@metamask/eslint-config-typescript"],
+      files: ['**/*.test.ts', '**/*.test.js'],
+      extends: ['@metamask/eslint-config-jest'],
       rules: {
-        "@typescript-eslint/consistent-type-definitions": ["error", "type"],
-        "prettier/prettier": [
-          "error",
-          {
-            endOfLine: "auto",
-          },
-        ],
-      },
-    },
-
-    {
-      files: ["**/*.test.ts", "**/*.test.js"],
-      extends: ["@metamask/eslint-config-jest"],
-      rules: {
-        "@typescript-eslint/no-shadow": [
-          "error",
-          { allow: ["describe", "expect", "it"] },
-        ],
-        "prettier/prettier": [
-          "error",
-          {
-            endOfLine: "auto",
-          },
+        '@typescript-eslint/no-shadow': [
+          'error',
+          { allow: ['describe', 'expect', 'it'] },
         ],
       },
     },
   ],
 
   ignorePatterns: [
-    "!.prettierrc.js",
-    "**/!.eslintrc.js",
-    "**/dist*/",
-    "**/*__GENERATED__*",
-    "**/build",
-    "**/public",
-    "**/.cache",
+    '!.prettierrc.js',
+    '**/!.eslintrc.js',
+    '**/dist*/',
+    '**/*__GENERATED__*',
+    '**/build',
+    '**/public',
+    '**/.cache',
   ],
 };

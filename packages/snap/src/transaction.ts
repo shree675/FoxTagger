@@ -6,14 +6,6 @@ import {
   WILL_EXCEED_MESSAGE,
 } from './utils/constants';
 
-/**
- * Provides transaction insights.
- *
- * @param transaction - The transaction details.
- * @returns 'insights' object.
- * @throws If the persistent storage is empty.
- * @throws If the persistent storage has incorrect fields.
- */
 export const getDetails = async (transaction: Record<string, unknown>) => {
   const toAddress = transaction.to as string;
   const storage = (await getPersistentStorage()) as any;
@@ -33,18 +25,18 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
     };
   }
 
-  const used = storage.usage[tag].used;
-  const limit = storage.usage[tag].limit;
-  const amount = parseInt(transaction.value as string);
-  const gas = parseInt(transaction.gas as string);
+  const { used } = storage.usage[tag];
+  const { limit } = storage.usage[tag];
+  const amount = parseInt(transaction.value as string, 16);
+  const gas = parseInt(transaction.gas as string, 16);
   const total = amount + gas;
 
   let usedPercent = (used / limit) * 100.0;
 
   // rounding to two decimal places
-  usedPercent = Number(Math.round(parseFloat(usedPercent + 'e+2')) + 'e-2');
+  usedPercent = Number(`${Math.round(parseFloat(`${usedPercent}e+2`))}e-2`);
 
-  let usageMsg = usedPercent + '%';
+  let usageMsg = `${usedPercent}%`;
 
   if (used > limit) {
     usageMsg += EXCEEDED_MESSAGE + toEth(limit);

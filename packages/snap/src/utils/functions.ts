@@ -22,5 +22,5 @@ export const setPersistentStorage = async (
 };
 
 export const toEth = (wei: number) => {
-  return wei / 1e18 + ' GoerliETH';
+  return `${wei / 1e18} GoerliETH`;
 };
