@@ -3,7 +3,7 @@ import {
   OnTransactionHandler,
   OnCronjobHandler,
 } from '@metamask/snap-types';
-import { checkLimits } from './cron';
+import { checkLimits, getSummary } from './cron';
 import { getDetails } from './transaction';
 import { getPersistentStorage, setPersistentStorage } from './utils/functions';
 
@@ -41,8 +41,22 @@ export const onTransaction: OnTransactionHandler = async ({ transaction }) => {
 
 export const onCronjob: OnCronjobHandler = async ({ request }) => {
   switch (request.method) {
-    case 'walletSummary':
+    case 'walletSummary': {
+      const message = await getSummary();
+      if (message !== null && message !== undefined) {
+        wallet.request({
+          method: 'snap_notify',
+          params: [
+            {
+              type: 'inApp',
+              message,
+            },
+          ],
+        });
+      }
       return;
+    }
+
     case 'checkLimits': {
       const message = await checkLimits();
       if (message !== null && message !== undefined) {
@@ -58,6 +72,7 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
       }
       return;
     }
+
     default:
       throw new Error('Method not found.');
   }
