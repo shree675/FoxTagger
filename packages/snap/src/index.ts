@@ -3,7 +3,7 @@ import {
   OnTransactionHandler,
   OnCronjobHandler,
 } from '@metamask/snap-types';
-import { checkLimits, getSummary } from './cron';
+import { checkLimits, getSummary, updateAmount } from './cron';
 import { getDetails } from './transaction';
 import { getPersistentStorage, setPersistentStorage } from './utils/functions';
 
@@ -19,12 +19,13 @@ import { getPersistentStorage, setPersistentStorage } from './utils/functions';
 export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
   switch (request.method) {
     case 'notify':
+      // for debugging
       return await wallet.request({
         method: 'snap_notify',
         params: [
           {
             type: 'inApp',
-            message: `Hello, world!`,
+            message: `He\nllo,\r\nwo<br />rld!`,
           },
         ],
       });
@@ -95,7 +96,36 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
       return;
     }
 
+    case 'updateAmount': {
+      let completeStorage = (await getPersistentStorage()) as any;
+
+      if (!completeStorage) {
+        return;
+      }
+
+      const accounts: string[] = [];
+
+      for (const account in completeStorage) {
+        if (Object.prototype.hasOwnProperty.call(completeStorage, account)) {
+          if (account.startsWith('0x')) {
+            accounts.push(account);
+          }
+        }
+      }
+
+      for (const account of accounts) {
+        const tempStorage = await updateAmount(account, completeStorage);
+        if (tempStorage !== undefined && tempStorage !== null) {
+          completeStorage = tempStorage;
+        }
+      }
+
+      await setPersistentStorage(completeStorage);
+      return;
+    }
+
     default:
-      throw new Error('Method not found.');
+      // throw new Error('Method not found.');
+      throw new Error(request.method);
   }
 };

@@ -24,3 +24,7 @@ export const setPersistentStorage = async (
 export const toEth = (wei: number) => {
   return `${(wei / 1e18).toFixed(18)} GoerliETH`;
 };
+
+export const compact = (hash: string) => {
+  return `${hash.slice(0, 5)}...${hash.slice(hash.length - 4, hash.length)}`;
+};

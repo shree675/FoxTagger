@@ -2,10 +2,11 @@ import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
-  // clearStorage,
+  clearStorage,
   connectSnap,
   getSnap,
   getStorage,
+  notify,
   setStorage,
   shouldDisplayReconnectButton,
 } from '../utils';
@@ -115,16 +116,16 @@ const Index = () => {
         setAccount(_accounts[0]);
       });
 
-      // await clearStorage();
+      await clearStorage();
 
       // initialize persistent storage
       let storage = (await getStorage()) as any;
       if (!storage) {
         storage = {};
-        storage[account] = { mainMapping: {}, usage: {} };
+        storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
         await setStorage(storage);
       } else if (!storage[account]) {
-        storage[account] = { mainMapping: {}, usage: {} };
+        storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
         await setStorage(storage);
       }
     };
@@ -148,7 +149,7 @@ const Index = () => {
 
   const handleSendHelloClick = async () => {
     try {
-      // pass
+      await notify();
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });

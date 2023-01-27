@@ -25,10 +25,12 @@
           notified: false
         },
         ...
-      }
+      },
+      latestHash: "transaction_hash0"
     },
     ...
   }
   ```
 - The usage information must be stored in _wei_.
 - The same notifications are globally shared between all accounts on Metamask.
+- The corresponding amounts of new transactions are updated every 30 minutes in the persistent storage.
