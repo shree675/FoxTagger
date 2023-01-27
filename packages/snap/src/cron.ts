@@ -1,8 +1,4 @@
-import {
-  getPersistentStorage,
-  setPersistentStorage,
-  toEth,
-} from './utils/functions';
+import { setPersistentStorage, toEth } from './utils/functions';
 import {
   LIMIT_ALERT_FOOTER,
   LIMIT_ALERT_HEADER,
@@ -10,10 +6,10 @@ import {
   SUMMARY_HEADER,
 } from './utils/constants';
 
-export const checkLimits = async () => {
-  const storage = (await getPersistentStorage()) as any;
+export const checkLimits = async (account: string, completeStorage: any) => {
+  const storage = completeStorage[account];
 
-  if (!storage?.usage) {
+  if (!storage.usage) {
     return null;
   }
 
@@ -40,9 +36,10 @@ export const checkLimits = async () => {
 
   if (changed) {
     storage.usage = newUsage;
-    await setPersistentStorage(storage);
+    completeStorage[account] = storage;
+    await setPersistentStorage(completeStorage);
 
-    let message = LIMIT_ALERT_HEADER;
+    let message = `${LIMIT_ALERT_HEADER + account}:\n`;
     for (const tag of tags) {
       message += `${tag}\n`;
     }
@@ -53,10 +50,10 @@ export const checkLimits = async () => {
   return null;
 };
 
-export const getSummary = async () => {
-  const storage = (await getPersistentStorage()) as any;
+export const getSummary = async (account: string, completeStorage: any) => {
+  const storage = completeStorage[account];
 
-  if (!storage?.usage) {
+  if (!storage.usage) {
     return null;
   }
 
@@ -75,7 +72,7 @@ export const getSummary = async () => {
   }
 
   if (summary.length > 0) {
-    let message = SUMMARY_HEADER;
+    let message = `${SUMMARY_HEADER + account}:\n`;
     for (const item of summary) {
       message += `${item.tag}: ${item.used}\n`;
     }
@@ -90,6 +87,7 @@ export const getSummary = async () => {
     }
 
     storage.usage = newUsage;
+    completeStorage[account] = storage;
     await setPersistentStorage(storage);
 
     return message;

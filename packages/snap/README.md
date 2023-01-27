@@ -13,24 +13,22 @@
 - The current data structure of the persistent storage is as follows:
   ```json
   {
-    "mainMapping": {
-      "account": "tag",
-      "account": "tag",
-      ...
+    "from_account0": {
+      mainMapping: {
+        "to_account0": "tag0",
+        ...
+      },
+      usage: {
+        "tag0": {
+          limit: 100000000000,
+          used: 800000,
+          notified: false
+        },
+        ...
+      }
     },
-    "usage": {
-      "tag": {
-        "limit": 100000000000,
-        "used": 800000,
-        "notified": false
-      },
-      "tag": {
-        "limit": 100000000000,
-        "used": 800000,
-        "notified": false
-      },
-      ...
-    }
+    ...
   }
   ```
 - The usage information must be stored in _wei_.
+- The same notifications are globally shared between all accounts on Metamask.

@@ -91,4 +91,19 @@ export const setStorage = async (data: Record<string, unknown> | void) => {
   });
 };
 
+/**
+ * Clear the persistent storage in the snap.
+ */
+export const clearStorage = async () => {
+  return await window.ethereum.request({
+    method: 'wallet_invokeSnap',
+    params: [
+      defaultSnapOrigin,
+      {
+        method: 'clearPersistentStorage',
+      },
+    ],
+  });
+};
+
 export const isLocalSnap = (snapId: string) => snapId.startsWith('local:');

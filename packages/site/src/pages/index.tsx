@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
+  // clearStorage,
   connectSnap,
   getSnap,
   getStorage,
@@ -106,23 +107,25 @@ const Index = () => {
 
   useEffect(() => {
     const initializeAccount = async () => {
-      const accounts = await window.ethereum.request({
+      const accounts = (await window.ethereum.request({
         method: 'eth_requestAccounts',
-      });
-      //@ts-ignore
+      })) as any[];
       setAccount(accounts[0]);
-      window.ethereum.on('accountsChanged', function (accounts) {
-        //@ts-ignore
-        setAccount(accounts[0]);
+      window.ethereum.on('accountsChanged', function (_accounts: any) {
+        setAccount(_accounts[0]);
       });
 
+      // await clearStorage();
+
       // initialize persistent storage
-      const storage = await getStorage();
-      if (storage === null) {
-        await setStorage({
-          mainMapping: {},
-          usage: {},
-        });
+      let storage = (await getStorage()) as any;
+      if (!storage) {
+        storage = {};
+        storage[account] = { mainMapping: {}, usage: {} };
+        await setStorage(storage);
+      } else if (!storage[account]) {
+        storage[account] = { mainMapping: {}, usage: {} };
+        await setStorage(storage);
       }
     };
     initializeAccount();
@@ -145,6 +148,7 @@ const Index = () => {
 
   const handleSendHelloClick = async () => {
     try {
+      // pass
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });

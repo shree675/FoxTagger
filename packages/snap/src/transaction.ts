@@ -8,11 +8,14 @@ import {
 
 export const getDetails = async (transaction: Record<string, unknown>) => {
   const toAddress = transaction.to as string;
-  const storage = (await getPersistentStorage()) as any;
+  const account = transaction.from as string;
+  const completeStorage = (await getPersistentStorage()) as any;
 
-  if (!storage) {
+  if (!completeStorage?.[account]) {
     throw new Error('Storage initialization failed.');
   }
+
+  const storage = completeStorage[account];
 
   if (!storage.mainMapping || !storage.usage) {
     throw new Error('Data corrput. Please re-install the snap.');

@@ -18,12 +18,28 @@ import { getPersistentStorage, setPersistentStorage } from './utils/functions';
  */
 export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
   switch (request.method) {
+    case 'notify':
+      return await wallet.request({
+        method: 'snap_notify',
+        params: [
+          {
+            type: 'inApp',
+            message: `Hello, world!`,
+          },
+        ],
+      });
     case 'getPersistentStorage':
       return await getPersistentStorage();
     case 'setPersistentStorage':
       await setPersistentStorage(
         request.params as void | Record<string, unknown>,
       );
+      return null;
+    case 'clearPersistentStorage':
+      await wallet.request({
+        method: 'snap_manageState',
+        params: ['clear'],
+      });
       return null;
 
     default:
@@ -41,34 +57,40 @@ export const onTransaction: OnTransactionHandler = async ({ transaction }) => {
 
 export const onCronjob: OnCronjobHandler = async ({ request }) => {
   switch (request.method) {
-    case 'walletSummary': {
-      const message = await getSummary();
-      if (message !== null && message !== undefined) {
-        wallet.request({
-          method: 'snap_notify',
-          params: [
-            {
-              type: 'inApp',
-              message,
-            },
-          ],
-        });
-      }
-      return;
-    }
-
+    case 'walletSummary':
     case 'checkLimits': {
-      const message = await checkLimits();
-      if (message !== null && message !== undefined) {
-        wallet.request({
-          method: 'snap_notify',
-          params: [
-            {
-              type: 'inApp',
-              message,
-            },
-          ],
-        });
+      const completeStorage = (await getPersistentStorage()) as any;
+
+      if (!completeStorage) {
+        return;
+      }
+
+      const accounts: string[] = [];
+
+      for (const account in completeStorage) {
+        if (Object.prototype.hasOwnProperty.call(completeStorage, account)) {
+          if (account.startsWith('0x')) {
+            accounts.push(account);
+          }
+        }
+      }
+
+      for (const account of accounts) {
+        const message =
+          request.method === 'checkLimits'
+            ? await checkLimits(account, completeStorage)
+            : await getSummary(account, completeStorage);
+        if (message !== null && message !== undefined) {
+          wallet.request({
+            method: 'snap_notify',
+            params: [
+              {
+                type: 'inApp',
+                message,
+              },
+            ],
+          });
+        }
       }
       return;
     }
