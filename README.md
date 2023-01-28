@@ -23,6 +23,7 @@ yarn lint:fix
 ```
 
 Run the below command if there are prettier errors/warnings:
+
 ```shell
 npx prettier --write .
 ```
