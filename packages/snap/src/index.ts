@@ -5,7 +5,18 @@ import {
 } from '@metamask/snap-types';
 import { checkLimits, getSummary, updateAmount } from './cron';
 import { getDetails } from './transaction';
-import { getPersistentStorage, setPersistentStorage } from './utils/functions';
+import {
+  SUMMARY_HEADER,
+  SUMMARY_EXCEEDED,
+  SUMMARY_EXCEEDED_FOOTER,
+  SUMMARY_FOOTER,
+  SUMMARY_SAFE_FOOTER,
+} from './utils/constants';
+import {
+  compact,
+  getPersistentStorage,
+  setPersistentStorage,
+} from './utils/functions';
 
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
@@ -58,7 +69,58 @@ export const onTransaction: OnTransactionHandler = async ({ transaction }) => {
 
 export const onCronjob: OnCronjobHandler = async ({ request }) => {
   switch (request.method) {
-    case 'walletSummary':
+    case 'walletSummary': {
+      const completeStorage = (await getPersistentStorage()) as any;
+
+      if (!completeStorage) {
+        return;
+      }
+
+      const accounts: string[] = [];
+
+      for (const account in completeStorage) {
+        if (Object.prototype.hasOwnProperty.call(completeStorage, account)) {
+          if (account.startsWith('0x')) {
+            accounts.push(account);
+          }
+        }
+      }
+
+      let message = null;
+      let exceededAccounts = '';
+      if (accounts.length > 0) {
+        message = SUMMARY_HEADER;
+      }
+
+      for (const account of accounts) {
+        const exceeded = await getSummary(account, completeStorage);
+
+        if (exceeded) {
+          exceededAccounts += `${compact(account)}, `;
+        }
+      }
+
+      if (exceededAccounts.length > 0) {
+        message +=
+          SUMMARY_EXCEEDED + exceededAccounts + SUMMARY_EXCEEDED_FOOTER;
+      } else {
+        message += SUMMARY_SAFE_FOOTER;
+      }
+      message += SUMMARY_FOOTER;
+
+      await wallet.request({
+        method: 'snap_notify',
+        params: [
+          {
+            type: 'inApp',
+            message,
+          },
+        ],
+      });
+
+      return;
+    }
+
     case 'checkLimits': {
       const completeStorage = (await getPersistentStorage()) as any;
 
@@ -77,12 +139,9 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
       }
 
       for (const account of accounts) {
-        const message =
-          request.method === 'checkLimits'
-            ? await checkLimits(account, completeStorage)
-            : await getSummary(account, completeStorage);
+        const message = await checkLimits(account, completeStorage);
         if (message !== null && message !== undefined) {
-          wallet.request({
+          await wallet.request({
             method: 'snap_notify',
             params: [
               {
@@ -125,7 +184,6 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
     }
 
     default:
-      // throw new Error('Method not found.');
-      throw new Error(request.method);
+      throw new Error('Method not found.');
   }
 };

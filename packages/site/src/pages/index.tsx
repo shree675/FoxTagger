@@ -148,7 +148,7 @@ const Index = () => {
           for (const tag in usage) {
             if (Object.prototype.hasOwnProperty.call(usage, tag)) {
               usage[tag].limit = 0;
-              // used field will be updated by a cron job
+              // used field will be updated later by a cron job
               usage[tag].used = 0;
               usage[tag].notified = false;
             }

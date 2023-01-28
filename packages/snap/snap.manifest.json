@@ -37,7 +37,7 @@
           }
         },
         {
-          "expression": "30 * * * *",
+          "expression": "10 * * * *",
           "request": {
             "method": "updateAmount"
           }

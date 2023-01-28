@@ -1,10 +1,5 @@
-import { compact, setPersistentStorage, toEth } from './utils/functions';
-import {
-  LIMIT_ALERT_FOOTER,
-  LIMIT_ALERT_HEADER,
-  SUMMARY_FOOTER,
-  SUMMARY_HEADER,
-} from './utils/constants';
+import { compact, setPersistentStorage } from './utils/functions';
+import { LIMIT_ALERT_FOOTER, LIMIT_ALERT_HEADER } from './utils/constants';
 
 export const checkLimits = async (account: string, completeStorage: any) => {
   const storage = completeStorage[account];
@@ -56,42 +51,35 @@ export const getSummary = async (account: string, completeStorage: any) => {
   }
 
   const { usage } = storage;
-  const summary: { tag: string; used: string }[] = [];
   const newUsage: any = {};
+  let exceeded = false;
+  let hasTag = false;
 
   for (const tag in usage) {
     if (Object.prototype.hasOwnProperty.call(usage, tag)) {
+      hasTag = true;
       const { used } = usage[tag];
+      const { limit } = usage[tag];
 
       newUsage[tag] = usage[tag];
 
-      summary.push({ tag, used: toEth(used) });
+      if (used > limit && limit > 0) {
+        exceeded = true;
+      }
+
+      // reset usage information for the next week
+      newUsage[tag].notified = false;
+      newUsage[tag].used = 0;
     }
   }
 
-  if (summary.length > 0) {
-    let message = `${SUMMARY_HEADER + compact(account)}:\n`;
-    for (const item of summary) {
-      message += `${item.tag}: ${item.used}\n`;
-    }
-    message += SUMMARY_FOOTER;
-
-    // reset usage information for the next week
-    for (const tag in newUsage) {
-      if (Object.prototype.hasOwnProperty.call(newUsage, tag)) {
-        newUsage[tag].notified = false;
-        newUsage[tag].used = 0;
-      }
-    }
-
+  if (hasTag) {
     storage.usage = newUsage;
     completeStorage[account] = storage;
     await setPersistentStorage(storage);
-
-    return message;
   }
 
-  return null;
+  return exceeded;
 };
 
 export const updateAmount = async (account: string, completeStorage: any) => {
