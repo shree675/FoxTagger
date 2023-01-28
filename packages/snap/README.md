@@ -32,5 +32,6 @@
   }
   ```
 - The usage information must be stored in _wei_.
+- The mapping of account to tag will be the same for all user accounts. Only the limits must be set by the user for each of his accounts.
 - The same notifications are globally shared between all accounts on Metamask.
 - The corresponding amounts of new transactions are updated every 30 minutes in the persistent storage.

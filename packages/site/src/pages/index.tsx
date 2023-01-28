@@ -125,7 +125,42 @@ const Index = () => {
         storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
         await setStorage(storage);
       } else if (!storage[account]) {
-        storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
+        // an account already exists so set the same mainMapping for the new account
+
+        let prevAccount = null;
+        for (const existingAccount in storage) {
+          if (Object.prototype.hasOwnProperty.call(storage, existingAccount)) {
+            if (existingAccount.startsWith('0x')) {
+              prevAccount = existingAccount;
+            }
+          }
+        }
+
+        if (prevAccount === null || prevAccount === undefined) {
+          console.error(
+            'Persistent storage has not been initialized correctly.',
+          );
+          storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
+        } else {
+          const { mainMapping } = storage[prevAccount];
+          const { usage } = storage[prevAccount];
+
+          for (const tag in usage) {
+            if (Object.prototype.hasOwnProperty.call(usage, tag)) {
+              usage[tag].limit = 0;
+              // used field will be updated by a cron job
+              usage[tag].used = 0;
+              usage[tag].notified = false;
+            }
+          }
+
+          storage[account] = {
+            mainMapping,
+            usage,
+            latestHash: '',
+          };
+        }
+
         await setStorage(storage);
       }
     };

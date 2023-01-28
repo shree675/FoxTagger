@@ -16,7 +16,6 @@ export const checkLimits = async (account: string, completeStorage: any) => {
   const { usage } = storage;
   const tags: string[] = [];
   const newUsage: any = {};
-  let changed = false;
 
   for (const tag in usage) {
     if (Object.prototype.hasOwnProperty.call(usage, tag)) {
@@ -26,22 +25,21 @@ export const checkLimits = async (account: string, completeStorage: any) => {
 
       newUsage[tag] = usage[tag];
 
-      if (!notified && used > limit) {
+      if (!notified && used > limit && limit > 0) {
         tags.push(tag);
         newUsage[tag].notified = true;
-        changed = true;
       }
     }
   }
 
-  if (changed) {
+  if (tags.length > 0) {
     storage.usage = newUsage;
     completeStorage[account] = storage;
     await setPersistentStorage(completeStorage);
 
     let message = `${LIMIT_ALERT_HEADER + compact(account)}:\n`;
     for (const tag of tags) {
-      message += `${tag}\n`;
+      message += `${tag},\n`;
     }
     message += LIMIT_ALERT_FOOTER;
 
