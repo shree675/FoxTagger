@@ -110,10 +110,10 @@ const Index = () => {
     const initializeAccount = async () => {
       const accounts = (await window.ethereum.request({
         method: 'eth_requestAccounts',
-      })) as any[];
-      setAccount(accounts[0]);
+      })) as string[];
+      setAccount(accounts[0].toLowerCase());
       window.ethereum.on('accountsChanged', function (_accounts: any) {
-        setAccount(_accounts[0]);
+        setAccount(_accounts[0].toLowerCase());
       });
 
       await clearStorage();

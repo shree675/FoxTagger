@@ -81,7 +81,7 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
       for (const account in completeStorage) {
         if (Object.prototype.hasOwnProperty.call(completeStorage, account)) {
           if (account.startsWith('0x')) {
-            accounts.push(account);
+            accounts.push(account.toLowerCase());
           }
         }
       }
@@ -133,7 +133,7 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
       for (const account in completeStorage) {
         if (Object.prototype.hasOwnProperty.call(completeStorage, account)) {
           if (account.startsWith('0x')) {
-            accounts.push(account);
+            accounts.push(account.toLowerCase());
           }
         }
       }
@@ -167,7 +167,7 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
       for (const account in completeStorage) {
         if (Object.prototype.hasOwnProperty.call(completeStorage, account)) {
           if (account.startsWith('0x')) {
-            accounts.push(account);
+            accounts.push(account.toLowerCase());
           }
         }
       }

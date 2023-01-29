@@ -105,17 +105,17 @@ export const updateAmount = async (account: string, completeStorage: any) => {
 
   const { latestHash } = completeStorage[account];
 
-  if (transactions[0].hash === latestHash) {
+  if (transactions[0].hash.toLowerCase() === latestHash) {
     return null;
   }
 
   for (const transaction of transactions) {
-    if (transaction.hash === latestHash) {
+    if (transaction.hash.toLowerCase() === latestHash) {
       break;
     }
 
     if (transaction.to !== account) {
-      const toAddress = transaction.to;
+      const toAddress = (transaction.to as string).toLowerCase();
       const tag = completeStorage[account].mainMapping[toAddress];
 
       if (tag !== null && tag !== undefined) {
@@ -130,7 +130,7 @@ export const updateAmount = async (account: string, completeStorage: any) => {
     }
   }
 
-  completeStorage[account].latestHash = transactions[0].hash;
+  completeStorage[account].latestHash = transactions[0].hash.toLowerCase();
 
   return completeStorage;
 };

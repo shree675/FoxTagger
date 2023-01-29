@@ -7,8 +7,8 @@ import {
 } from './utils/constants';
 
 export const getDetails = async (transaction: Record<string, unknown>) => {
-  const toAddress = transaction.to as string;
-  const account = transaction.from as string;
+  const toAddress = (transaction.to as string).toLowerCase();
+  const account = (transaction.from as string).toLowerCase();
   const completeStorage = (await getPersistentStorage()) as any;
 
   if (!completeStorage?.[account]) {
