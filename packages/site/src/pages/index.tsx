@@ -18,6 +18,26 @@ import {
   Card,
 } from '../components';
 
+import Footer from './Footer';
+import Navbar from './Navbar';
+import Section1 from './Section1';
+import Section3 from './Section3';
+import Section4 from './Section4';
+
+const Container1 = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin: 5rem;
+  ${({ theme }) => theme.mediaQueries.small} {
+    padding-left: 2.4rem;
+    padding-right: 2.4rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    width: auto;
+  }
+`;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -192,91 +212,129 @@ const Index = () => {
   };
 
   return (
-    <Container>
-      <Heading>
-        Welcome to <Span>template-snap</Span>
-      </Heading>
-      <Subtitle>
-        Get started by editing <code>src/index.ts</code>
-      </Subtitle>
-      <CardContainer>
-        {state.error && (
-          <ErrorMessage>
-            <b>An error happened:</b> {state.error.message}
-          </ErrorMessage>
-        )}
-        {!state.isFlask && (
+    <>
+      <Container1>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+          crossOrigin="anonymous"
+        ></link>
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+          crossOrigin="anonymous"
+        ></script>
+
+        <div className="d-flex flex-column">
+          {/* <div className="d-flex flex-row">
+            <Navbar />
+          </div> */}
+          <div className="d-flex flex-row flex-fill border-top">
+            <div className="container-fluid h-100">
+              <div className="row h-100">
+                <Section1 />
+                <div className="section2 col-12">
+                  <Section3 />
+                </div>
+                <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
+                  <Section4 />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* <div className="d-flex flex-row border-top">
+            <Footer />
+          </div> */}
+        </div>
+      </Container1>
+      <Container>
+        <Heading>
+          Welcome to <Span>template-snap</Span>
+        </Heading>
+        <Subtitle>
+          Get started by editing <code>src/index.ts</code>
+        </Subtitle>
+        <CardContainer>
+          {state.error && (
+            <ErrorMessage>
+              <b>An error happened:</b> {state.error.message}
+            </ErrorMessage>
+          )}
+          {!state.isFlask && (
+            <Card
+              content={{
+                title: 'Install',
+                description:
+                  'Snaps is pre-release software only available in MetaMask Flask, a canary distribution for developers with access to upcoming features.',
+                button: <InstallFlaskButton />,
+              }}
+              fullWidth
+            />
+          )}
+          {!state.installedSnap && (
+            <Card
+              content={{
+                title: 'Connect',
+                description:
+                  'Get started by connecting to and installing the example snap.',
+                button: (
+                  <ConnectButton
+                    onClick={handleConnectClick}
+                    disabled={!state.isFlask}
+                  />
+                ),
+              }}
+              disabled={!state.isFlask}
+            />
+          )}
+          {shouldDisplayReconnectButton(state.installedSnap) && (
+            <Card
+              content={{
+                title: 'Reconnect',
+                description:
+                  'While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.',
+                button: (
+                  <ReconnectButton
+                    onClick={handleConnectClick}
+                    disabled={!state.installedSnap}
+                  />
+                ),
+              }}
+              disabled={!state.installedSnap}
+            />
+          )}
           <Card
             content={{
-              title: 'Install',
+              title: 'Send Hello message',
               description:
-                'Snaps is pre-release software only available in MetaMask Flask, a canary distribution for developers with access to upcoming features.',
-              button: <InstallFlaskButton />,
-            }}
-            fullWidth
-          />
-        )}
-        {!state.installedSnap && (
-          <Card
-            content={{
-              title: 'Connect',
-              description:
-                'Get started by connecting to and installing the example snap.',
+                'Display a custom message within a confirmation screen in MetaMask.',
               button: (
-                <ConnectButton
-                  onClick={handleConnectClick}
-                  disabled={!state.isFlask}
-                />
-              ),
-            }}
-            disabled={!state.isFlask}
-          />
-        )}
-        {shouldDisplayReconnectButton(state.installedSnap) && (
-          <Card
-            content={{
-              title: 'Reconnect',
-              description:
-                'While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.',
-              button: (
-                <ReconnectButton
-                  onClick={handleConnectClick}
+                <SendHelloButton
+                  onClick={handleSendHelloClick}
                   disabled={!state.installedSnap}
                 />
               ),
             }}
             disabled={!state.installedSnap}
+            fullWidth={
+              state.isFlask &&
+              Boolean(state.installedSnap) &&
+              !shouldDisplayReconnectButton(state.installedSnap)
+            }
           />
-        )}
-        <Card
-          content={{
-            title: 'Send Hello message',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
-            button: (
-              <SendHelloButton
-                onClick={handleSendHelloClick}
-                disabled={!state.installedSnap}
-              />
-            ),
-          }}
-          disabled={!state.installedSnap}
-          fullWidth={
-            state.isFlask &&
-            Boolean(state.installedSnap) &&
-            !shouldDisplayReconnectButton(state.installedSnap)
-          }
-        />
-        <Notice>
-          <p>
-            Please note that the <b>snap.manifest.json</b> and{' '}
-            <b>package.json</b> must be located in the server root directory and
-            the bundle must be hosted at the location specified by the location
-            field.
-          </p>
-        </Notice>
-      </CardContainer>
-    </Container>
+          {/* <Container>hi</Container> */}
+          <Notice>
+            <p>
+              Please note that the <b>snap.manifest.json</b> and{' '}
+              <b>package.json</b> must be located in the server root directory
+              and the bundle must be hosted at the location specified by the
+              location field.
+            </p>
+          </Notice>
+        </CardContainer>
+      </Container>
+    </>
   );
 };
 
