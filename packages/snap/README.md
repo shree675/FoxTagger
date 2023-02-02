@@ -36,3 +36,9 @@
 - The same notifications are globally shared between all accounts on Metamask.
 - The corresponding amounts of new transactions are updated every 30 minutes in the persistent storage.
 - All hashes/addresses must be in **lower case** hexadecimal format.
+- The user should be able to set limits in _wei_, _gwei_ and _Goerli ETH_.
+
+### TODOs
+
+- Resolve ongoing transactions section.
+- Replace personal API key for transactions.
