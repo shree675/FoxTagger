@@ -5,10 +5,10 @@ export const NO_TAG_MESSAGE = `No tag found for this account.\n\nHead over to '$
 export const FOOTER_NOTE = `\n\nTo modify/remove tags, visit '${site}'.`;
 
 export const EXCEEDED_MESSAGE =
-  '\nYou have exceeded the maximum monthly limit of ';
+  'You have exceeded the maximum monthly limit of ';
 
 export const WILL_EXCEED_MESSAGE =
-  '\nWarning: You are about to exceed the maximum limit of ';
+  'You are about to exceed the maximum limit of ';
 
 export const LIMIT_ALERT_HEADER =
   'Alert: You have exceeded the set limit for the following tags on the account ';

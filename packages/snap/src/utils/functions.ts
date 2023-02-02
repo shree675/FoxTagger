@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers';
+
 export const getPersistentStorage = async () => {
   return await wallet.request({
     method: 'snap_manageState',
@@ -21,8 +23,8 @@ export const setPersistentStorage = async (
   });
 };
 
-export const toEth = (wei: number) => {
-  return `${(wei / 1e18).toFixed(18)} GoerliETH`;
+export const toEth = (wei: BigNumber) => {
+  return `${wei.div(1e18).toString()} GoerliETH`;
 };
 
 export const compact = (hash: string) => {

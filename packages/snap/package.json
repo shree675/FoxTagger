@@ -26,6 +26,9 @@
     "serve": "mm-snap serve",
     "start": "mm-snap watch"
   },
+  "dependencies": {
+    "ethers": "^5.7.2"
+  },
   "devDependencies": {
     "@lavamoat/allow-scripts": "^2.0.3",
     "@metamask/auto-changelog": "^2.6.0",
