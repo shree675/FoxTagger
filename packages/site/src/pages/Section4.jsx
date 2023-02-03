@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
@@ -31,9 +31,11 @@ export const data = {
   ],
 };
 
-export default function Section4(){
-  return <div>
-    <h4 className="p-2 mt-3 fw-bold">Spending Breakdown</h4>
-    <Doughnut data={data} />
-  </div>
+export default function Section4() {
+  return (
+    <div>
+      <h4 className="p-2 mt-3 fw-bold">Spending Breakdown</h4>
+      <Doughnut data={data} />
+    </div>
+  );
 }
