@@ -1,5 +1,5 @@
 import React from 'react';
-import DATA from './data';
+import DATA_local from './data';
 
 const colorMap = {
   food: 'text-bg-primary',
@@ -9,7 +9,10 @@ const colorMap = {
   travel: 'text-bg-info',
 };
 
-export default function GetTableData() {
+export default function GetTableData(props) {
+  let DATA = props.props;
+  console.log('api data :', DATA);
+
   const [data, setData] = React.useState([]);
   const [dateRange, setDateRange] = React.useState({
     startDate: new Date('2000-01-01'),
@@ -22,6 +25,7 @@ export default function GetTableData() {
     startDate: new Date(),
     endDate: new Date(0),
   });
+
   const [filterAddress, setFilterAddress] = React.useState('all');
 
   const handleSort = (field) => {
@@ -42,7 +46,8 @@ export default function GetTableData() {
   };
 
   React.useEffect(() => {
-    setData(DATA);
+    console.log('data local:', DATA_local);
+    setData(DATA_local);
 
     setFilterDateRange(dateRange);
   }, [dateRange]);

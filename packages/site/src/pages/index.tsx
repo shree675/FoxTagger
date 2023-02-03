@@ -128,9 +128,13 @@ const Index = () => {
 
   useEffect(() => {
     const initializeAccount = async () => {
-      const accounts = (await window.ethereum.request({
+      const accounts = (await window.ethereum?.request({
         method: 'eth_requestAccounts',
       })) as string[];
+      // ensure acccounts is not null or undefined
+      if (!accounts) {
+        return;
+      }
       setAccount(accounts[0].toLowerCase());
       window.ethereum.on('accountsChanged', function (_accounts: any) {
         setAccount(_accounts[0].toLowerCase());
