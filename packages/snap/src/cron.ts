@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import { compact, setPersistentStorage } from './utils/functions';
 import { LIMIT_ALERT_FOOTER, LIMIT_ALERT_HEADER } from './utils/constants';
 
@@ -20,7 +21,11 @@ export const checkLimits = async (account: string, completeStorage: any) => {
 
       newUsage[tag] = usage[tag];
 
-      if (!notified && used > limit && limit > 0) {
+      if (
+        !notified &&
+        BigNumber.from(used).gt(BigNumber.from(limit)) &&
+        BigNumber.from(limit).gt(BigNumber.from('0'))
+      ) {
         tags.push(tag);
         newUsage[tag].notified = true;
       }
@@ -63,13 +68,16 @@ export const getSummary = async (account: string, completeStorage: any) => {
 
       newUsage[tag] = usage[tag];
 
-      if (used > limit && limit > 0) {
+      if (
+        BigNumber.from(used).gt(BigNumber.from(limit)) &&
+        BigNumber.from(limit).gt('0')
+      ) {
         exceeded = true;
       }
 
       // reset usage information for the next week
       newUsage[tag].notified = false;
-      newUsage[tag].used = 0;
+      newUsage[tag].used = '0';
     }
   }
 
@@ -116,16 +124,22 @@ export const updateAmount = async (account: string, completeStorage: any) => {
 
     if (transaction.to !== account) {
       const toAddress = (transaction.to as string).toLowerCase();
-      const tag = completeStorage[account].mainMapping[toAddress];
+      const tagList = completeStorage[account].mainMapping[toAddress];
 
-      if (tag !== null && tag !== undefined) {
-        const gas =
-          parseInt(transaction.gasPrice, 10) *
-          parseInt(transaction.gasUsed, 10);
-        const value = parseInt(transaction.value, 10);
-        const total = gas + value;
+      if (tagList !== null && tagList !== undefined) {
+        for (const tag of tagList) {
+          const gas = BigNumber.from(transaction.gasPrice).mul(
+            BigNumber.from(transaction.gasUsed),
+          );
+          const value = BigNumber.from(transaction.value);
+          const total = gas.add(value);
 
-        completeStorage[account].usage[tag].used += total;
+          completeStorage[account].usage[tag].used = BigNumber.from(
+            completeStorage[account].usage[tag].used,
+          )
+            .add(total)
+            .toString();
+        }
       }
     }
   }

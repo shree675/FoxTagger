@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import { getPersistentStorage, toEth } from './utils/functions';
 import {
   NO_TAG_MESSAGE,
@@ -21,34 +22,59 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
     throw new Error('Data corrput. Please re-install the snap.');
   }
 
-  const tag = storage.mainMapping[toAddress];
-  if (!tag) {
+  const tagList = storage.mainMapping[toAddress];
+  if (!tagList?.length) {
     return {
       Tag: NO_TAG_MESSAGE,
     };
   }
 
-  const { used } = storage.usage[tag];
-  const { limit } = storage.usage[tag];
-  const amount = parseInt(transaction.value as string, 16);
-  const gas = parseInt(transaction.gas as string, 16);
-  const total = amount + gas;
+  let tags = '';
+  let alerts = '';
+  let usageMsg = '';
 
-  let usedPercent = (used / limit) * 100.0;
+  for (const tag of tagList) {
+    if (tags === '') {
+      tags += `${tag}`;
+    } else {
+      tags += `, ${tag}`;
+    }
+    let { used } = storage.usage[tag];
+    let { limit } = storage.usage[tag];
+    const usedPercent = (
+      (parseInt(used, 10) / parseInt(limit, 10)) *
+      100
+    ).toFixed(2);
+    used = BigNumber.from(used);
+    limit = BigNumber.from(limit);
 
-  // rounding to two decimal places
-  usedPercent = Number(`${Math.round(parseFloat(`${usedPercent}e+2`))}e-2`);
+    const amount = BigNumber.from(transaction.value as string);
+    const gas = BigNumber.from(transaction.gas as string);
+    const total = amount.add(gas);
 
-  let usageMsg = `${usedPercent}%`;
+    if (usageMsg === '') {
+      usageMsg += `${tag}: ${usedPercent}%`;
+    } else {
+      usageMsg += ` | ${tag}: ${usedPercent}%`;
+    }
 
-  if (used > limit) {
-    usageMsg += EXCEEDED_MESSAGE + toEth(limit);
-  } else if (used + total >= limit) {
-    usageMsg += WILL_EXCEED_MESSAGE + toEth(limit);
+    if (used.gt(limit)) {
+      alerts += `${EXCEEDED_MESSAGE + toEth(limit)} for the tag ${tag}.\n`;
+    } else if (used.add(total).gte(limit)) {
+      alerts += `${WILL_EXCEED_MESSAGE + toEth(limit)} for the tag ${tag}.\n`;
+    }
+  }
+
+  if (alerts === '') {
+    return {
+      Tag: tags,
+      Usage: usageMsg + FOOTER_NOTE,
+    };
   }
 
   return {
-    Tag: tag,
+    Tag: tags,
     Usage: usageMsg + FOOTER_NOTE,
+    Alerts: alerts,
   };
 };

@@ -17,12 +17,10 @@ yarn install && yarn start
 Before committing, run the following:
 
 ```shell
-yarn lint
-# if errors arise in the above command, run:
-yarn lint:fix
+yarn prep
 ```
 
-Run the below command if there are prettier errors/warnings:
+Run the below command if there are linting errors/warnings in the above output:
 
 ```shell
 npx prettier --write .

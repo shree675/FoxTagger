@@ -15,13 +15,13 @@
   {
     "from_account0": {
       mainMapping: {
-        "to_account0": "tag0",
+        "to_account0": ["tag0","tag1"],
         ...
       },
       usage: {
         "tag0": {
-          limit: 100000000000,
-          used: 800000,
+          limit: "100000000000",
+          used: "800000",
           notified: false
         },
         ...
@@ -31,8 +31,14 @@
     ...
   }
   ```
-- The usage information must be stored in _wei_.
+- The usage information must be stored in _wei_ as a string.
 - The mapping of account to tag will be the same for all user accounts. Only the limits must be set by the user for each of his accounts.
 - The same notifications are globally shared between all accounts on Metamask.
-- The corresponding amounts of new transactions are updated every 30 minutes in the persistent storage.
 - All hashes/addresses must be in **lower case** hexadecimal format.
+- The user should be able to set limits in _wei_, _gwei_ and _Goerli ETH_.
+- The default limit should be set to "0".
+
+### TODOs
+
+- Resolve ongoing transactions section.
+- Replace personal API key for transactions.
