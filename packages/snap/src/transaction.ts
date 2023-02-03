@@ -34,38 +34,47 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
   let usageMsg = '';
 
   for (const tag of tagList) {
-    if (tag === '') {
+    if (tags === '') {
       tags += `${tag}`;
     } else {
       tags += `, ${tag}`;
     }
-    const { used } = storage.usage[tag];
-    const { limit } = storage.usage[tag];
+    let { used } = storage.usage[tag];
+    let { limit } = storage.usage[tag];
+    const usedPercent = (
+      (parseInt(used, 10) / parseInt(limit, 10)) *
+      100
+    ).toFixed(2);
+    used = BigNumber.from(used);
+    limit = BigNumber.from(limit);
+
     const amount = BigNumber.from(transaction.value as string);
     const gas = BigNumber.from(transaction.gas as string);
     const total = amount.add(gas);
 
-    let usedPercent = used.div(limit).toNumber() * 100.0;
-
-    // rounding to two decimal places
-    usedPercent = Number(`${Math.round(parseFloat(`${usedPercent}e+2`))}e-2`);
-
     if (usageMsg === '') {
-      usageMsg = `${tag}: ${usedPercent}%`;
+      usageMsg += `${tag}: ${usedPercent}%`;
     } else {
-      usageMsg = ` | ${tag}: ${usedPercent}%`;
+      usageMsg += ` | ${tag}: ${usedPercent}%`;
     }
 
-    if (used > limit) {
-      alerts += `${EXCEEDED_MESSAGE + toEth(limit)} for the tag ${tag}\n`;
-    } else if (used + total >= limit) {
-      alerts += `${WILL_EXCEED_MESSAGE + toEth(limit)} for the tag ${tag}\n`;
+    if (used.gt(limit)) {
+      alerts += `${EXCEEDED_MESSAGE + toEth(limit)} for the tag ${tag}.\n`;
+    } else if (used.add(total).gte(limit)) {
+      alerts += `${WILL_EXCEED_MESSAGE + toEth(limit)} for the tag ${tag}.\n`;
     }
+  }
+
+  if (alerts === '') {
+    return {
+      Tag: tags,
+      Usage: usageMsg + FOOTER_NOTE,
+    };
   }
 
   return {
     Tag: tags,
     Usage: usageMsg + FOOTER_NOTE,
-    Alerts: alerts === '' ? 'None' : alerts,
+    Alerts: alerts,
   };
 };

@@ -24,7 +24,9 @@ export const setPersistentStorage = async (
 };
 
 export const toEth = (wei: BigNumber) => {
-  return `${wei.div(1e18).toString()} GoerliETH`;
+  return `${wei
+    .div(BigNumber.from('1000000000000000000'))
+    .toString()} GoerliETH`;
 };
 
 export const compact = (hash: string) => {
