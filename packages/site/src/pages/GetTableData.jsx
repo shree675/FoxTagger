@@ -1,27 +1,123 @@
 import React, { useEffect, useState } from 'react';
 import DATA_local from './data';
+import { getStorage, setStorage } from '../utils/snap';
+import { compact, toEth } from './utils/functions';
 
-import { getStorage, handleSendHelloClick } from '../utils/snap';
-import styled from 'styled-components';
-
-const colorMap = {
-  food: 'text-bg-primary',
-  shopping: 'text-bg-success',
-  transportation: 'text-bg-warning',
-  entertainment: 'text-bg-danger',
-  travel: 'text-bg-info',
+import './tableDesign.css';
+import { BigNumber } from 'ethers';
+const convert = {
+  wei_eth: (wei) => {
+    return toEth(BigNumber.from(wei.toString()));
+  },
+  eth_wei: (eth) => {
+    return (BigNumber.from(wei) * BigNumber('1000000000000000000')).toString();
+  },
 };
 
-const TabCol = styled.div`
-  background-color: ${(props) => props.theme.colors.background.default};
-  color: ${(props) => props.theme.colors.text.default};
-`;
-
 export default function GetTableData(props) {
-  let DATA = props.props;
-  console.log('api data :', DATA);
-
   const [persistanceData, setPersistanceData] = useState({});
+  const [uniqueTags, setUniqueTags] = useState([]);
+  const [appData, setAppData] = useState('');
+  const [data, setData] = React.useState([]);
+  const [dateRange, setDateRange] = React.useState({
+    startDate: new Date('2000-01-01'),
+    endDate: new Date('2100-01-01'),
+  });
+  const [sortDirection, setSortDirection] = React.useState('desc');
+  const [sortField, setSortField] = React.useState('date');
+  const [filterTag, setFilterTag] = React.useState('all');
+  const [filterDateRange, setFilterDateRange] = React.useState({
+    startDate: new Date(),
+    endDate: new Date(0),
+  });
+  const [cM, setCM] = React.useState([]);
+  const [tag, setTag] = React.useState([]);
+
+  const colorMap = (tag) => {
+    if (cM[tag]) return cM[tag];
+
+    let color = Math.floor(Math.random() * 16777215).toString(16);
+    while (parseInt(color, 16) < 0x333333) {
+      color = Math.floor(Math.random() * 16777215).toString(16);
+    }
+
+    let newCM = cM;
+    newCM[tag] = '#' + color;
+    setCM(newCM);
+
+    return color;
+  };
+
+  const addtag = async (address, tag) => {
+    let newPersistanceData = await getStorage();
+    let mainMapping = newPersistanceData.mainMapping;
+    if (!mainMapping) mainMapping = {};
+    if (!mainMapping[address]) {
+      mainMapping[address] = [];
+    }
+    if (!mainMapping[address].includes(tag)) {
+      mainMapping[address].push(tag);
+    }
+    setPersistanceData(newPersistanceData);
+    await setStorage(newPersistanceData);
+    setData(heuristicFilter(newPersistanceData, appData));
+  };
+
+  const handleAddTag = (address) => {
+    let tag = prompt('Enter tag name');
+    if (tag == '' || tag == null) {
+      alert('Tag name cannot be empty');
+      return;
+    }
+    addtag(address, tag);
+  };
+
+  const removetag = async (address, tag) => {
+    let newPersistanceData = await getStorage();
+    let mainMapping = newPersistanceData.mainMapping;
+    if (!mainMapping) mainMapping = {};
+    if (!mainMapping[address]) {
+      mainMapping[address] = [];
+    }
+    if (mainMapping[address].includes(tag)) {
+      mainMapping[address] = mainMapping[address].filter((t) => t !== tag);
+    }
+    setPersistanceData(newPersistanceData);
+    await setStorage(newPersistanceData);
+    setData(heuristicFilter(newPersistanceData, appData));
+  };
+
+  const handleDeleteTag = (address, tag) => {
+    removetag(address, tag);
+  };
+
+  const heuristicFilter = (persistanceData, apiData) => {
+    if (!persistanceData || !apiData) return DATA_local;
+    let mainMapping = persistanceData.mainMapping;
+
+    let data = [];
+    for (let i = 0; i < apiData.length; i++) {
+      let tx = apiData[i];
+      let to = tx.from;
+      let value = tx.value;
+      let tags = [];
+
+      tags = mainMapping[to] ? mainMapping[to] : [];
+      let date = new Date(tx.timeStamp * 1000).toLocaleDateString();
+      let time = new Date(tx.timeStamp * 1000).toLocaleTimeString();
+      let dateTime = date + ' ' + time;
+
+      let row = {
+        address: to,
+        amount: value,
+        tags: tags,
+        date: dateTime,
+      };
+      data.push(row);
+    }
+
+    return data;
+  };
 
   useEffect(() => {
     const getPersistanceStorage = async () => {
@@ -32,11 +128,45 @@ export default function GetTableData(props) {
       if (!accounts) {
         return;
       }
+      console.log('accounts :', accounts);
 
       // initialize persistent storage
       let storageData = await getStorage();
       console.log('persistance storage :', storageData);
       setPersistanceData(storageData);
+
+      let template = {
+        mainMapping: {
+          '0x71c7656ec7ab88b098defb751b7401b5f6d8976f': [
+            'food2',
+            'entertainment',
+          ],
+          '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
+            'transportation',
+            'food',
+          ],
+          '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
+        },
+        usage: {},
+        latestHash: '',
+      };
+
+      let genData = await setStorage(template);
+      console.log('genData :', genData);
+
+      let storageData2 = await getStorage();
+
+      fetch(
+        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=0x71C7656EC7ab88b098defB751B7401B5f6d8976F&startblock=0&endblock=9999999999&sort=asc&apikey=FFJRFMXZPG2H3K9QEMQ25Z1PZS67CIU8DJ`,
+      )
+        .then((results) => results.json())
+        .then((data) => {
+          if (data && data.message == 'OK') {
+            setAppData(data.result);
+          }
+        });
+
+      setData(heuristicFilter(storageData2, appData));
 
       // if (!storageData) {
       //   storageData = {};
@@ -83,21 +213,6 @@ export default function GetTableData(props) {
     };
     getPersistanceStorage();
   }, []);
-
-  const [data, setData] = React.useState([]);
-  const [dateRange, setDateRange] = React.useState({
-    startDate: new Date('2000-01-01'),
-    endDate: new Date('2100-01-01'),
-  });
-  const [sortDirection, setSortDirection] = React.useState('desc');
-  const [sortField, setSortField] = React.useState('date');
-  const [filterTag, setFilterTag] = React.useState('all');
-  const [filterDateRange, setFilterDateRange] = React.useState({
-    startDate: new Date(),
-    endDate: new Date(0),
-  });
-
-  const [filterAddress, setFilterAddress] = React.useState('all');
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -271,47 +386,55 @@ export default function GetTableData(props) {
       <div className="table-responsive">
         <table className="table text-muted">
           <thead>
-            <tr>
+            <tr className="text-dark fs-3">
               <th colSpan={2}>Address</th>
               <th colSpan={1}>Date</th>
               <th colSpan={1}>Amount</th>
               <th colSpan={2}>Tags</th>
-              <th colSpan={2}>Notes</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-dark">
             {finalData.map((item) => (
               <tr key={item._id}>
-                <td colSpan={2}>{item.address}</td>
-                <td colSpan={1}>{item.date}</td>
-                <td colSpan={1}>{item.amount}</td>
+                <td colSpan={2} className="align-middle">
+                  {compact(item.address)}
+                </td>
+                <td colSpan={1} className="align-middle">
+                  {item.date}
+                </td>
+                <td colSpan={1} className="align-middle">
+                  {convert['wei_eth'](item.amount)}
+                </td>
                 <td colSpan={2}>
                   <div>
                     {item.tags.map((tag) => (
                       <span
                         className={
-                          'badge m-1 shadow rounded-2 ' + colorMap[tag]
+                          'badge pe-3 ps-3 p-2 m-1 shadow rounded-pill '
                         }
+                        style={{ backgroundColor: colorMap(tag) }}
                       >
-                        {tag}
-                        &nbsp;
-                        <span class="badge bg-light text-muted rounded-circle opacity-50">
-                          x
+                        <span className="align-middle">{tag}</span>
+                        <span
+                          class="text-dark fw-bold fs-4 ms-2 align-middle"
+                          onClick={() => handleDeleteTag(item.address, tag)}
+                        >
+                          <i class="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
                         </span>
                       </span>
                     ))}
-
-                    <span class="badge bg-success shadow  text-white rounded opacity-50">
+                    <span
+                      class="badge bg-success shadow text-white rounded-pill"
+                      onClick={() => {
+                        handleAddTag(item.address);
+                      }}
+                    >
                       +
                     </span>
                   </div>
                 </td>
-                <td colSpan={2}>{item.notes}</td>
               </tr>
             ))}
-            {/* print data from DATA */}
-            {/* {DATA.map((item) => (
-              <tr key={item.hash}> */}
           </tbody>
         </table>
       </div>

@@ -25,18 +25,18 @@ import Section3 from './Section3';
 import Section4 from './Section4';
 
 const Body = styled.div`
-background-color: ${(props) => props.theme.colors.background.default};
-    color: ${(props) => props.theme.colors.text.default};
-    font-family: ${(props) => props.theme.fonts.default};
-    font-size: ${(props) => props.theme.fontSizes.text};
-    margin: 0;
+  background-color: ${(props) => props.theme.colors.background.default};
+  color: ${(props) => props.theme.colors.text.default};
+  font-family: ${(props) => props.theme.fonts.default};
+  font-size: ${(props) => props.theme.fontSizes.text};
+  margin: 0;
 `;
 
 const Container1 = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  margin: 5rem;
+  margin: 2rem;
   ${({ theme }) => theme.mediaQueries.small} {
     padding-left: 2.4rem;
     padding-right: 2.4rem;
@@ -226,38 +226,18 @@ const Index = () => {
   return (
     <Body>
       <Container1>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
-          crossOrigin="anonymous"
-        ></link>
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-          crossOrigin="anonymous"
-        ></script>
-
-        <div className="d-flex flex-column">
-          {/* <div className="d-flex flex-row">
-            <Navbar />
-          </div> */}
-          <div className="d-flex flex-row flex-fill border-top">
-            <div className="container-fluid h-100">
-              <div className="row h-100">
-                <Section1 />
-                <div className="section2 col-12">
-                  <Section3 />
-                </div>
-                <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
-                  <Section4 />
-                </div>
+        <div className="d-flex flex-column p-0 m-0">
+          <div className="container-fluid h-100">
+            <div className="row h-100">
+              <Section1 />
+              <div className="section2 col-12">
+                <Section3 />
+              </div>
+              <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
+                <Section4 />
               </div>
             </div>
           </div>
-          {/* <div className="d-flex flex-row border-top">
-            <Footer />
-          </div> */}
         </div>
       </Container1>
       <Container>

@@ -15,7 +15,6 @@ const HeaderWrapper = styled.header`
   border-bottom: 1px solid ${(props) => props.theme.colors.border.default};
   background-color: ${(props) => props.theme.colors.background.default};
   color: ${(props) => props.theme.colors.text.default};
-
 `;
 
 const Title = styled.p`

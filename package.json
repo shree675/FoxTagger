@@ -27,7 +27,11 @@
     "test": "echo \"TODO\""
   },
   "dependencies": {
-    "dotenv": "^16.0.3"
+    "@popperjs/core": "^2.11.6",
+    "bootstrap": "^5.2.3",
+    "bootstrap-icons": "^1.10.3",
+    "dotenv": "^16.0.3",
+    "jquery": "^3.6.3"
   },
   "devDependencies": {
     "@metamask/eslint-config": "^10.0.0",

@@ -127,60 +127,38 @@ export const GlobalStyle = createGlobalStyle`
 
   body {
     background-color: ${(props) => props.theme.colors.background.default};
-    color: ${(props) => props.theme.colors.text.default};
-    font-family: ${(props) => props.theme.fonts.default};
-    font-size: ${(props) => props.theme.fontSizes.text};
     margin: 0;
   }
 
-  * {
-    transition: background-color .1s linear;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-size: ${(props) => props.theme.fontSizes.heading};
-    ${(props) => props.theme.mediaQueries.small} {
-      font-size: ${(props) => props.theme.fontSizes.mobileHeading};
-    }
-  }
-
-  code {
-    background-color: ${(props) => props.theme.colors.background.alternative};
-    font-family: ${(props) => props.theme.fonts.code};
-    padding: 1.2rem;
-    font-weight: normal;
-    font-size: ${(props) => props.theme.fontSizes.text};
-  }
-
   button {
-    font-size: ${(props) => props.theme.fontSizes.small};
-    border-radius: ${(props) => props.theme.radii.button};
-    background-color: ${(props) => props.theme.colors.background.inverse};
-    color: ${(props) => props.theme.colors.text.inverse};
-    border: 1px solid ${(props) => props.theme.colors.background.inverse};
-    font-weight: bold;
-    padding: 1rem;
-    min-height: 4.2rem;
-    cursor: pointer;
-    transition: all .2s ease-in-out;
+    font-size: 1.6rem !important;
+  }
 
-    &:hover {
-      background-color: transparent;
-      border: 1px solid ${(props) => props.theme.colors.background.inverse};
-      color: ${(props) => props.theme.colors.text.default};
-    }
+  input {
+    font-size: 1.6rem !important;
+  }
 
-    &:disabled,
-    &[disabled] {
-      border: 1px solid ${(props) => props.theme.colors.background.inverse};
-      cursor: not-allowed;
-    }
+  h1{
+    font-size: 5.2rem !important;
+  }
 
-    &:disabled:hover,
-    &[disabled]:hover {
-      background-color: ${(props) => props.theme.colors.background.inverse};
-      color: ${(props) => props.theme.colors.text.inverse};
-      border: 1px solid ${(props) => props.theme.colors.background.inverse};
-    }
+  h2{
+    font-size: 2.4rem !important;
+  }
+
+  h3{
+    font-size: 2rem !important;
+  }
+
+  h4{
+    font-size: 1.6rem !important;
+  }
+
+  h5{
+    font-size: 1.4rem !important;
+  }
+
+  h6{
+    font-size: 1.2rem !important;
   }
 `;
