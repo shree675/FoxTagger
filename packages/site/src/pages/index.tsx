@@ -24,6 +24,14 @@ import Section1 from './Section1';
 import Section3 from './Section3';
 import Section4 from './Section4';
 
+const Body = styled.div`
+background-color: ${(props) => props.theme.colors.background.default};
+    color: ${(props) => props.theme.colors.text.default};
+    font-family: ${(props) => props.theme.fonts.default};
+    font-size: ${(props) => props.theme.fontSizes.text};
+    margin: 0;
+`;
+
 const Container1 = styled.div`
   display: flex;
   flex-direction: column;
@@ -216,7 +224,7 @@ const Index = () => {
   };
 
   return (
-    <>
+    <Body>
       <Container1>
         <link
           rel="stylesheet"
@@ -338,7 +346,7 @@ const Index = () => {
           </Notice>
         </CardContainer>
       </Container>
-    </>
+    </Body>
   );
 };
 

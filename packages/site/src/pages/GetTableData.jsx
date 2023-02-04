@@ -9,6 +9,11 @@ const colorMap = {
   travel: 'text-bg-info',
 };
 
+const TabCol = styled.div`
+   background-color: ${(props) => props.theme.colors.background.default};
+    color: ${(props) => props.theme.colors.text.default};
+`;
+
 export default function GetTableData(props) {
   let DATA = props.props;
   console.log('api data :', DATA);
@@ -198,7 +203,7 @@ export default function GetTableData(props) {
         </div>
       </div>
       <div className="table-responsive">
-        <table className="table">
+        <table className="table text-muted">
           <thead>
             <tr>
               <th colSpan={2}>Address</th>
@@ -223,15 +228,24 @@ export default function GetTableData(props) {
                         }
                       >
                         {tag}
+                        &nbsp;
+                        <span class="badge bg-light text-muted rounded-circle opacity-50">
+x
+</span> 
                       </span>
                     ))}
+
+<span class="badge bg-success shadow  text-white rounded opacity-50">
++
+</span> 
+
                   </div>
                 </td>
                 <td colSpan={2}>{item.notes}</td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </table> 
       </div>
     </div>
   );
