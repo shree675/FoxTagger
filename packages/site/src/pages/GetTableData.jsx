@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import DATA_local from './data';
 
 import { getStorage, handleSendHelloClick } from '../utils/snap';
+import styled from 'styled-components';
 
 const colorMap = {
   food: 'text-bg-primary',
@@ -10,6 +11,11 @@ const colorMap = {
   entertainment: 'text-bg-danger',
   travel: 'text-bg-info',
 };
+
+const TabCol = styled.div`
+  background-color: ${(props) => props.theme.colors.background.default};
+  color: ${(props) => props.theme.colors.text.default};
+`;
 
 export default function GetTableData(props) {
   let DATA = props.props;
@@ -263,7 +269,7 @@ export default function GetTableData(props) {
         </div>
       </div>
       <div className="table-responsive">
-        <table className="table">
+        <table className="table text-muted">
           <thead>
             <tr>
               <th colSpan={2}>Address</th>
@@ -288,8 +294,16 @@ export default function GetTableData(props) {
                         }
                       >
                         {tag}
+                        &nbsp;
+                        <span class="badge bg-light text-muted rounded-circle opacity-50">
+                          x
+                        </span>
                       </span>
                     ))}
+
+                    <span class="badge bg-success shadow  text-white rounded opacity-50">
+                      +
+                    </span>
                   </div>
                 </td>
                 <td colSpan={2}>{item.notes}</td>
