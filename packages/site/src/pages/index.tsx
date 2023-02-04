@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
+import DATA_local from './data';
+
 import {
   clearStorage,
   connectSnap,
@@ -23,6 +25,7 @@ import Navbar from './Navbar';
 import Section1 from './Section1';
 import Section3 from './Section3';
 import Section4 from './Section4';
+import Analytics from './Analytics';
 
 const Body = styled.div`
   background-color: ${(props) => props.theme.colors.background.default};
@@ -224,7 +227,7 @@ const Index = () => {
   };
 
   return (
-    <Body>
+    <Body> 
       <Container1>
         <div className="d-flex flex-column p-0 m-0">
           <div className="container-fluid h-100">
@@ -240,6 +243,8 @@ const Index = () => {
           </div>
         </div>
       </Container1>
+
+
       <Container>
         <Heading>
           Welcome to <Span>template-snap</Span>
@@ -326,6 +331,7 @@ const Index = () => {
           </Notice>
         </CardContainer>
       </Container>
+
     </Body>
   );
 };
