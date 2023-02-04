@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import DATA_local from './data';
+
+import { getStorage, handleSendHelloClick } from '../utils/snap';
 
 const colorMap = {
   food: 'text-bg-primary',
@@ -12,6 +14,69 @@ const colorMap = {
 export default function GetTableData(props) {
   let DATA = props.props;
   console.log('api data :', DATA);
+
+  const [persistanceData, setPersistanceData] = useState({});
+
+  useEffect(() => {
+    const getPersistanceStorage = async () => {
+      const accounts = await window.ethereum?.request({
+        method: 'eth_requestAccounts',
+      });
+      // ensure acccounts is not null or undefined
+      if (!accounts) {
+        return;
+      }
+
+      // initialize persistent storage
+      let storageData = await getStorage();
+      console.log('persistance storage :', storageData);
+      setPersistanceData(storageData);
+
+      // if (!storageData) {
+      //   storageData = {};
+      //   storageData[account] = { mainMapping: {}, usage: {}, latestHash: '' };
+      //   await setStorage(storageData);
+      // } else if (!storageData[account]) {
+      //   // an account already exists so set the same mainMapping for the new account
+      //   let prevAccount = null;
+      //   for (const existingAccount in storageData) {
+      //     if (Object.prototype.hasOwnProperty.call(storageData, existingAccount)) {
+      //       if (existingAccount.startsWith('0x')) {
+      //         prevAccount = existingAccount;
+      //       }
+      //     }
+      //   }
+
+      //   if (prevAccount === null || prevAccount === undefined) {
+      //     console.error(
+      //       'Persistent storage has not been initialized correctly.',
+      //     );
+      //     storageData[account] = { mainMapping: {}, usage: {}, latestHash: '' };
+      //   } else {
+      //     const { mainMapping } = storageData[prevAccount];
+      //     const { usage } = storageData[prevAccount];
+
+      //     for (const tag in usage) {
+      //       if (Object.prototype.hasOwnProperty.call(usage, tag)) {
+      //         usage[tag].limit = 0;
+      //         // used field will be updated later by a cron job
+      //         usage[tag].used = 0;
+      //         usage[tag].notified = false;
+      //       }
+      //     }
+
+      //     storageData[account] = {
+      //       mainMapping,
+      //       usage,
+      //       latestHash: '',
+      //     };
+      //   }
+
+      //   await setStorage(storageData);
+      // }
+    };
+    getPersistanceStorage();
+  }, []);
 
   const [data, setData] = React.useState([]);
   const [dateRange, setDateRange] = React.useState({
@@ -230,6 +295,9 @@ export default function GetTableData(props) {
                 <td colSpan={2}>{item.notes}</td>
               </tr>
             ))}
+            {/* print data from DATA */}
+            {/* {DATA.map((item) => (
+              <tr key={item.hash}> */}
           </tbody>
         </table>
       </div>
