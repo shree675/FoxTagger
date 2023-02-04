@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
+import DATA_local from './data';
+
 import {
   clearStorage,
   connectSnap,
@@ -23,6 +25,7 @@ import Navbar from './Navbar';
 import Section1 from './Section1';
 import Section3 from './Section3';
 import Section4 from './Section4';
+import Analytics from './Analytics';
 
 const Body = styled.div`
 background-color: ${(props) => props.theme.colors.background.default};
@@ -224,7 +227,12 @@ const Index = () => {
   };
 
   return (
-    <Body>
+    <Body> 
+      
+
+
+
+
       <Container1>
         <link
           rel="stylesheet"
@@ -238,10 +246,25 @@ const Index = () => {
           crossOrigin="anonymous"
         ></script>
 
+
+
+
+
         <div className="d-flex flex-column">
-          {/* <div className="d-flex flex-row">
-            <Navbar />
-          </div> */}
+
+
+    <div className='shadow w-50' style={{padding:10}}> 
+    <Subtitle>Limits</Subtitle> 
+    <div class="row"> 
+    <div class="col-md-auto"> tag1 </div>
+    <div class="col bg-muted border rounded-pill" style={{padding:0}}> <div className='bg-success rounded-pill' style={{width:'10%' ,  height:'100%'}}/> </div>
+    <div class="col-md-auto"> 20% </div>
+    
+    </div>
+
+
+
+   </div>
           <div className="d-flex flex-row flex-fill border-top">
             <div className="container-fluid h-100">
               <div className="row h-100">
@@ -260,6 +283,8 @@ const Index = () => {
           </div> */}
         </div>
       </Container1>
+
+
       <Container>
         <Heading>
           Welcome to <Span>template-snap</Span>
@@ -346,6 +371,7 @@ const Index = () => {
           </Notice>
         </CardContainer>
       </Container>
+
     </Body>
   );
 };
