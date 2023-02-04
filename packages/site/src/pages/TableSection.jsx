@@ -12,17 +12,24 @@ export default function TableSection() {
       setAccount(account);
       console.log('useeffect log :', account);
     }
-  }, [account]);
-
-  React.useEffect(() => {
     fetch(
-      `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=1G563FEP4GAUAF4YUXJUBU363NB984HCWJ`,
+      `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=FFJRFMXZPG2H3K9QEMQ25Z1PZS67CIU8DJ`,
     )
       .then((results) => results.json())
       .then((data) => {
         setData(data.result);
       });
-  }, []);
+  }, [account]);
+
+  // React.useEffect(() => {
+  //   fetch(
+  //     `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=FFJRFMXZPG2H3K9QEMQ25Z1PZS67CIU8DJ`,
+  //   )
+  //     .then((results) => results.json())
+  //     .then((data) => {
+  //       setData(data.result);
+  //     });
+  // }, []);
 
   return (
     <div>
