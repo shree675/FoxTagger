@@ -12,6 +12,10 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
   const account = (transaction.from as string).toLowerCase();
   const completeStorage = (await getPersistentStorage()) as any;
 
+  console.log(toAddress);
+  console.log(account);
+  console.log(completeStorage);
+
   if (!completeStorage?.[account]) {
     throw new Error('Storage initialization failed.');
   }
@@ -41,6 +45,7 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
     }
     let { used } = storage.usage[tag];
     let { limit } = storage.usage[tag];
+    console.log('used,', used, limit);
     const usedPercent = (
       (parseInt(used, 10) / parseInt(limit, 10)) *
       100

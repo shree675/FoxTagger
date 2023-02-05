@@ -138,71 +138,74 @@ const Index = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
   const [account, setAccount] = useState('');
 
-  useEffect(() => {
-    const initializeAccount = async () => {
-      const accounts = (await window.ethereum?.request({
-        method: 'eth_requestAccounts',
-      })) as string[];
-      // ensure acccounts is not null or undefined
-      if (!accounts) {
-        return;
+  const initializeAccount = async () => {
+    const accounts = (await window.ethereum?.request({
+      method: 'eth_requestAccounts',
+    })) as string[];
+    // ensure acccounts is not null or undefined
+    if (!accounts) {
+      return;
+    }
+    setAccount(accounts[0].toLowerCase());
+    window.ethereum.on('accountsChanged', function (_accounts: any) {
+      setAccount(_accounts[0].toLowerCase());
+    });
+
+    // await clearStorage();
+
+    // initialize persistent storage
+    let storage = (await getStorage()) as any;
+    if (!account.startsWith('0x')) {
+      return;
+    }
+    console.log('storage: ', storage);
+    if (!storage) {
+      storage = {};
+      storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
+      await setStorage(storage);
+    } else if (!storage[account]) {
+      // an account already exists so set the same mainMapping for the new account
+
+      let prevAccount = null;
+      for (const existingAccount in storage) {
+        if (Object.prototype.hasOwnProperty.call(storage, existingAccount)) {
+          if (existingAccount.startsWith('0x')) {
+            prevAccount = existingAccount;
+          }
+        }
       }
-      setAccount(accounts[0].toLowerCase());
-      window.ethereum.on('accountsChanged', function (_accounts: any) {
-        setAccount(_accounts[0].toLowerCase());
-      });
 
-      await clearStorage();
-
-      // initialize persistent storage
-      let storage = (await getStorage()) as any;
-      console.log('storage: ', storage);
-      if (!storage) {
-        storage = {};
+      if (prevAccount === null || prevAccount === undefined) {
+        console.error('Persistent storage has not been initialized correctly.');
         storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
-        await setStorage(storage);
-      } else if (!storage[account]) {
-        // an account already exists so set the same mainMapping for the new account
+      } else {
+        const { mainMapping } = storage[prevAccount];
+        const { usage } = storage[prevAccount];
 
-        let prevAccount = null;
-        for (const existingAccount in storage) {
-          if (Object.prototype.hasOwnProperty.call(storage, existingAccount)) {
-            if (existingAccount.startsWith('0x')) {
-              prevAccount = existingAccount;
-            }
+        for (const tag in usage) {
+          if (Object.prototype.hasOwnProperty.call(usage, tag)) {
+            usage[tag].limit = 0;
+            // used field will be updated later by a cron job
+            usage[tag].used = 0;
+            usage[tag].notified = false;
           }
         }
 
-        if (prevAccount === null || prevAccount === undefined) {
-          console.error(
-            'Persistent storage has not been initialized correctly.',
-          );
-          storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
-        } else {
-          const { mainMapping } = storage[prevAccount];
-          const { usage } = storage[prevAccount];
-
-          for (const tag in usage) {
-            if (Object.prototype.hasOwnProperty.call(usage, tag)) {
-              usage[tag].limit = 0;
-              // used field will be updated later by a cron job
-              usage[tag].used = 0;
-              usage[tag].notified = false;
-            }
-          }
-
-          storage[account] = {
-            mainMapping,
-            usage,
-            latestHash: '',
-          };
-        }
-
-        await setStorage(storage);
+        storage[account] = {
+          mainMapping,
+          usage,
+          latestHash: '',
+        };
       }
-    };
+
+      await setStorage(storage);
+    }
+    // window.location.reload();
+  };
+
+  useEffect(() => {
     initializeAccount();
-  }, [account]);
+  }, [account, state.installedSnap]);
 
   const handleConnectClick = async () => {
     try {
@@ -213,6 +216,7 @@ const Index = () => {
         type: MetamaskActions.SetInstalled,
         payload: installedSnap,
       });
+      await initializeAccount();
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });

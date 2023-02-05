@@ -1,3 +1,5 @@
+//@ts-check
+
 import React, { useEffect, useState } from 'react';
 import DATA_local from './data';
 import { getStorage, setStorage } from '../utils/snap';
@@ -94,7 +96,8 @@ export default function GetTableData(props) {
 
   const heuristicFilter = (persistanceData, apiData) => {
     if (!persistanceData || !apiData) return DATA_local;
-    let mainMapping = persistanceData.mainMapping;
+    let mainMapping =
+      persistanceData['0x58fbf7339825d9dcb0d37c19cd04485880c0a894'].mainMapping;
     console.log('mainMapping 97:', mainMapping);
     let data = [];
     for (let i = 0; i < apiData.length; i++) {
@@ -126,7 +129,7 @@ export default function GetTableData(props) {
 
   useEffect(() => {
     const getPersistanceStorage = async () => {
-      const accounts = await window.ethereum?.request({
+      const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       });
       // ensure acccounts is not null or undefined
@@ -140,24 +143,46 @@ export default function GetTableData(props) {
       console.log('persistance storage :', storageData);
       setPersistanceData(storageData);
 
+      // let template = {
+      //   '0x58fbf7339825D9Dcb0d37C19CD04485880c0a894': {
+      //     mainMapping: {
+      //       '0x71c7656ec7ab88b098defb751b7401b5f6d8976f': [
+      //         'food2',
+      //         'entertainment',
+      //       ],
+      //       '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
+      //         'transportation',
+      //         'food',
+      //       ],
+      //       '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
+      //     },
+      //     usage: {},
+      //     latestHash: '',
+      //   },
+      // };
+
       let template = {
-        mainMapping: {
-          '0x71c7656ec7ab88b098defb751b7401b5f6d8976f': [
-            'food2',
-            'entertainment',
-          ],
-          '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
-            'transportation',
-            'food',
-          ],
-          '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
+        '0x58fbf7339825d9dcb0d37c19cd04485880c0a894': {
+          mainMapping: {
+            '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
+            '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
+              'transportation',
+              'food',
+            ],
+            '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
+          },
+          usage: {
+            todo: {
+              limit: '1000000000000000000',
+              used: '999999999999999999',
+              notified: true,
+            },
+          },
+          latestHash: '',
         },
-        usage: {},
-        latestHash: '',
       };
 
-      let genData = await setStorage(template);
-      console.log('genData :', genData);
+      await setStorage(template);
 
       let storageData2 = await getStorage();
 
@@ -170,6 +195,7 @@ export default function GetTableData(props) {
             const temp = data.result;
             setAppData(temp);
             console.log('sachin ka data :', temp);
+            console.log('165', storageData2);
             setData(heuristicFilter(storageData2, temp));
           }
         });
@@ -423,7 +449,9 @@ export default function GetTableData(props) {
                         <span className="align-middle">{tag}</span>
                         <span
                           className="text-dark fw-bold fs-4 ms-2 align-middle"
-                          onClick={async () => await handleDeleteTag(item.address, tag)}
+                          onClick={async () =>
+                            await handleDeleteTag(item.address, tag)
+                          }
                         >
                           <i className="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
                         </span>

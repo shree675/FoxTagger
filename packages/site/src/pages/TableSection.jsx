@@ -7,7 +7,7 @@ export default function TableSection() {
 
   // get data from api and set it to data
   useEffect(() => {
-    if (window.ethereum?.selectedAddress) {
+    if (window.ethereum.selectedAddress) {
       const account = window.ethereum.selectedAddress;
       setAccount(account);
       console.log('useeffect log :', account);

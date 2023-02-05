@@ -2,7 +2,7 @@ const site = 'http://localhost:8000';
 
 export const NO_TAG_MESSAGE = `No tag found for this account.\n\nHead over to '${site}' and create a new tag or attach one.`;
 
-export const FOOTER_NOTE = `\n\nTo modify/remove tags, visit '${site}'.`;
+export const FOOTER_NOTE = `\n\n.To modify/remove tags, visit '${site}'.`;
 
 export const EXCEEDED_MESSAGE =
   'You have exceeded the maximum monthly limit of ';
