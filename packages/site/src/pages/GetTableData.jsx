@@ -88,8 +88,8 @@ export default function GetTableData(props) {
     setData(heuristicFilter(newPersistanceData, appData));
   };
 
-  const handleDeleteTag = (address, tag) => {
-    removetag(address, tag);
+  const handleDeleteTag = async (address, tag) => {
+    await removetag(address, tag);
   };
 
   const heuristicFilter = (persistanceData, apiData) => {
@@ -423,7 +423,7 @@ export default function GetTableData(props) {
                         <span className="align-middle">{tag}</span>
                         <span
                           className="text-dark fw-bold fs-4 ms-2 align-middle"
-                          onClick={() => handleDeleteTag(item.address, tag)}
+                          onClick={async () => await handleDeleteTag(item.address, tag)}
                         >
                           <i className="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
                         </span>
