@@ -2,15 +2,6 @@ import React, { useEffect, useState } from 'react';
 import TableSection from './TableSection';
 
 export default function Section5() {
-  const [name, setName] = useState('Guest');
-
-  useEffect(() => {
-    if (window.ethereum?.selectedAddress) {
-      const name = window.ethereum.selectedAddress.substring(0, 20) + '...';
-      setName(name);
-    }
-  }, [name]);
-
   const value = 60;
   const tag = "entertainment and movies";
   
