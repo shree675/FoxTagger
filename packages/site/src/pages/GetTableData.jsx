@@ -49,6 +49,7 @@ export default function GetTableData(props) {
   };
 
   const addtag = async (address, tag) => {
+    console.log('add tag');
     let newPersistanceData = await getStorage();
     let mainMapping = newPersistanceData.mainMapping;
     if (!mainMapping) mainMapping = {};
@@ -63,13 +64,13 @@ export default function GetTableData(props) {
     setData(heuristicFilter(newPersistanceData, appData));
   };
 
-  const handleAddTag = (address) => {
+  const handleAddTag = async (address) => {
     let tag = prompt('Enter tag name');
     if (tag == '' || tag == null) {
       alert('Tag name cannot be empty');
       return;
     }
-    addtag(address, tag);
+    await addtag(address, tag);
   };
 
   const removetag = async (address, tag) => {
@@ -94,7 +95,7 @@ export default function GetTableData(props) {
   const heuristicFilter = (persistanceData, apiData) => {
     if (!persistanceData || !apiData) return DATA_local;
     let mainMapping = persistanceData.mainMapping;
-    // console.log('mainMapping :', mainMapping);
+    console.log('mainMapping 97:', mainMapping);
     let data = [];
     for (let i = 0; i < apiData.length; i++) {
       let tx = apiData[i];
@@ -430,8 +431,8 @@ export default function GetTableData(props) {
                     ))}
                     <span
                       className="badge bg-success shadow text-white rounded-pill"
-                      onClick={() => {
-                        handleAddTag(item.address);
+                      onClick={async () => {
+                        await handleAddTag(item.address);
                       }}
                     >
                       +

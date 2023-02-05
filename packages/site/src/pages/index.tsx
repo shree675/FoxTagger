@@ -155,6 +155,7 @@ const Index = () => {
 
       // initialize persistent storage
       let storage = (await getStorage()) as any;
+      console.log('storage: ', storage);
       if (!storage) {
         storage = {};
         storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
