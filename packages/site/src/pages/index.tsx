@@ -25,6 +25,7 @@ import Navbar from './Navbar';
 import Section1 from './Section1';
 import Section3 from './Section3';
 import Section4 from './Section4';
+import Section5 from './Section5';
 import Analytics from './Analytics';
 
 const Body = styled.div`
@@ -238,6 +239,9 @@ const Index = () => {
               </div>
               <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
                 <Section4 />
+              </div>
+              <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
+                <Section5 />
               </div>
             </div>
           </div>
