@@ -37,8 +37,3 @@
 - All hashes/addresses must be in **lower case** hexadecimal format.
 - The user should be able to set limits in _wei_, _gwei_ and _Goerli ETH_.
 - The default limit should be set to "0".
-
-### TODOs
-
-- Resolve ongoing transactions section.
-- Replace personal API key for transactions.

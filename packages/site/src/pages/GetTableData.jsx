@@ -53,7 +53,9 @@ export default function GetTableData(props) {
   const addtag = async (address, tag) => {
     console.log('add tag');
     let newPersistanceData = await getStorage();
-    let mainMapping = newPersistanceData.mainMapping;
+    let mainMapping =
+      newPersistanceData['0x58fbf7339825d9dcb0d37c19cd04485880c0a894']
+        .mainMapping;
     if (!mainMapping) mainMapping = {};
     if (!mainMapping[address]) {
       mainMapping[address] = [];
@@ -69,7 +71,6 @@ export default function GetTableData(props) {
   const handleAddTag = async (address) => {
     let tag = prompt('Enter tag name');
     if (tag == '' || tag == null) {
-      alert('Tag name cannot be empty');
       return;
     }
     await addtag(address, tag);
@@ -77,7 +78,9 @@ export default function GetTableData(props) {
 
   const removetag = async (address, tag) => {
     let newPersistanceData = await getStorage();
-    let mainMapping = newPersistanceData.mainMapping;
+    let mainMapping =
+      newPersistanceData['0x58fbf7339825d9dcb0d37c19cd04485880c0a894']
+        .mainMapping;
     if (!mainMapping) mainMapping = {};
     if (!mainMapping[address]) {
       mainMapping[address] = [];
@@ -162,6 +165,7 @@ export default function GetTableData(props) {
       // };
 
       let template = {
+        abc: 'def',
         '0x58fbf7339825d9dcb0d37c19cd04485880c0a894': {
           mainMapping: {
             '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
@@ -182,7 +186,9 @@ export default function GetTableData(props) {
         },
       };
 
-      await setStorage(template);
+      if (!storageData['abc']) {
+        await setStorage(template);
+      }
 
       let storageData2 = await getStorage();
 

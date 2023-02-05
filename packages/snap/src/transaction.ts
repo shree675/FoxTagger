@@ -41,6 +41,7 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
     }
     let { used } = storage.usage[tag];
     let { limit } = storage.usage[tag];
+    // TODO: change this
     const usedPercent = (
       (parseInt(used, 10) / parseInt(limit, 10)) *
       100
@@ -58,6 +59,7 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
       usageMsg += ` | ${tag}: ${usedPercent}%`;
     }
 
+    // TODO: check for "0" condition
     if (used.gt(limit)) {
       alerts += `${EXCEEDED_MESSAGE + toEth(limit)} for the tag ${tag}.\n`;
     } else if (used.add(total).gte(limit)) {
