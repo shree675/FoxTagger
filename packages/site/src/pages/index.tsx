@@ -228,7 +228,7 @@ const Index = () => {
   };
 
   return (
-    <Body> 
+    <Body>
       <Container1>
         <div className="d-flex flex-column p-0 m-0">
           <div className="container-fluid h-100">
@@ -247,7 +247,6 @@ const Index = () => {
           </div>
         </div>
       </Container1>
-
 
       <Container>
         <Heading>
@@ -335,7 +334,6 @@ const Index = () => {
           </Notice>
         </CardContainer>
       </Container>
-
     </Body>
   );
 };
