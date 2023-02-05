@@ -94,7 +94,7 @@ export default function GetTableData(props) {
   const heuristicFilter = (persistanceData, apiData) => {
     if (!persistanceData || !apiData) return DATA_local;
     let mainMapping = persistanceData.mainMapping;
-
+    // console.log('mainMapping :', mainMapping);
     let data = [];
     for (let i = 0; i < apiData.length; i++) {
       let tx = apiData[i];
@@ -102,6 +102,10 @@ export default function GetTableData(props) {
       let value = tx.value;
       let tags = [];
 
+      // console.log(mainMapping.has(to));
+      // if (mainMapping[to] && mainMapping[to].length > 0) {
+      //   tags = mainMapping[to];
+      // }
       tags = mainMapping[to] ? mainMapping[to] : [];
       let date = new Date(tx.timeStamp * 1000).toLocaleDateString();
       let time = new Date(tx.timeStamp * 1000).toLocaleTimeString();
@@ -125,10 +129,10 @@ export default function GetTableData(props) {
         method: 'eth_requestAccounts',
       });
       // ensure acccounts is not null or undefined
+      console.log('accounts :', accounts);
       if (!accounts) {
         return;
       }
-      console.log('accounts :', accounts);
 
       // initialize persistent storage
       let storageData = await getStorage();
@@ -162,11 +166,12 @@ export default function GetTableData(props) {
         .then((results) => results.json())
         .then((data) => {
           if (data && data.message == 'OK') {
-            setAppData(data.result);
+            const temp = data.result;
+            setAppData(temp);
+            console.log('sachin ka data :', temp);
+            setData(heuristicFilter(storageData2, temp));
           }
         });
-
-      setData(heuristicFilter(storageData2, appData));
 
       // if (!storageData) {
       //   storageData = {};
@@ -416,15 +421,15 @@ export default function GetTableData(props) {
                       >
                         <span className="align-middle">{tag}</span>
                         <span
-                          class="text-dark fw-bold fs-4 ms-2 align-middle"
+                          className="text-dark fw-bold fs-4 ms-2 align-middle"
                           onClick={() => handleDeleteTag(item.address, tag)}
                         >
-                          <i class="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
+                          <i className="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
                         </span>
                       </span>
                     ))}
                     <span
-                      class="badge bg-success shadow text-white rounded-pill"
+                      className="badge bg-success shadow text-white rounded-pill"
                       onClick={() => {
                         handleAddTag(item.address);
                       }}
