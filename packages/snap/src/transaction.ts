@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, FixedNumber } from 'ethers';
 import { getPersistentStorage, toEth } from './utils/functions';
 import {
   NO_TAG_MESSAGE,
@@ -41,10 +41,10 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
     }
     let { used } = storage.usage[tag];
     let { limit } = storage.usage[tag];
-    // TODO: change this
+    const fixedUsed = FixedNumber.from(used);
+    const fixedLimit = FixedNumber.from(limit);
     const usedPercent = (
-      (parseInt(used, 10) / parseInt(limit, 10)) *
-      100
+      Number(fixedUsed.divUnsafe(fixedLimit).toString()) * 100
     ).toFixed(2);
     used = BigNumber.from(used);
     limit = BigNumber.from(limit);
@@ -59,11 +59,12 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
       usageMsg += ` | ${tag}: ${usedPercent}%`;
     }
 
-    // TODO: check for "0" condition
-    if (used.gt(limit)) {
-      alerts += `${EXCEEDED_MESSAGE + toEth(limit)} for the tag ${tag}.\n`;
-    } else if (used.add(total).gte(limit)) {
-      alerts += `${WILL_EXCEED_MESSAGE + toEth(limit)} for the tag ${tag}.\n`;
+    if (!limit.eq('0')) {
+      if (used.gt(limit)) {
+        alerts += `${EXCEEDED_MESSAGE + toEth(limit)} for the tag ${tag}. `;
+      } else if (used.add(total).gte(limit)) {
+        alerts += `${WILL_EXCEED_MESSAGE + toEth(limit)} for the tag ${tag}. `;
+      }
     }
   }
 

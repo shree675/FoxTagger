@@ -179,7 +179,7 @@ export default function GetTableData(props) {
             todo: {
               limit: '1000000000000000000',
               used: '999999999999999999',
-              notified: true,
+              notified: false,
             },
           },
           latestHash: '',
