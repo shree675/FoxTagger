@@ -35,7 +35,7 @@ export const Footer = () => {
 
   return (
     <FooterWrapper>
-      <PoweredByButton href="https://docs.metamask.io/" target="_blank">
+      <PoweredByButton href="https://metamask.io/" target="_blank">
         <MetaMaskFox />
         <PoweredByContainer>
           <PoweredBy color={theme.colors.text.muted} />
