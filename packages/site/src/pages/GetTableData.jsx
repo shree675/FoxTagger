@@ -16,15 +16,19 @@ const convert = {
   },
 };
 
-export default function GetTableData() {
+export default function GetTableData(props) {
   const [persistanceData, setPersistanceData] = useState({});
   const [uniqueTags, setUniqueTags] = useState([]);
   const [appData, setAppData] = useState('');
 
   // todo : this is a hack, need to fix this
-  const [accountNo, setAccountNo] = useState(
-    '0x32f2e9ff23d7651beaa893d3a84ba26e7d848ab1',
-  );
+  // const [accountNo, setAccountNo] = useState(
+  //   '0x32f2e9ff23d7651beaa893d3a84ba26e7d848ab1',
+  // );
+
+  // get data from TableSection.jsx
+  const [accountNo, setAccountNo] = useState(props.props);
+
   const [data, setData] = React.useState([]);
   const [dateRange, setDateRange] = React.useState({
     startDate: new Date('2000-01-01'),
@@ -100,7 +104,7 @@ export default function GetTableData() {
 
   const heuristicFilter = (persistanceData, apiData) => {
     if (!persistanceData || !apiData) return DATA_local;
-    // if (persistanceData[accountNo] == undefined) return DATA_local;
+    if (persistanceData[accountNo] == undefined) return DATA_local;
     let mainMapping = persistanceData[accountNo].mainMapping;
     console.log('mainMapping 97:', mainMapping);
     let data = [];
@@ -127,13 +131,13 @@ export default function GetTableData() {
     return data;
   };
 
-  useEffect(() => {
-    if (window.ethereum.selectedAddress) {
-      const accountNo = window.ethereum.selectedAddress;
-      setAccountNo(accountNo);
-      console.log('useeffect log 2:', accountNo);
-    }
-  }, [accountNo]);
+  // useEffect(() => {
+  //   if (window.ethereum.selectedAddress) {
+  //     const accountNo = window.ethereum.selectedAddress;
+  //     setAccountNo(accountNo);
+  //     console.log('useeffect log 2:', accountNo);
+  //   }
+  // }, []);
 
   useEffect(() => {
     const getPersistanceStorage = async () => {
@@ -200,7 +204,7 @@ export default function GetTableData() {
       let storageData2 = await getStorage();
 
       fetch(
-        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${accountNo}&startblock=0&endblock=9999999999&sort=asc&apikey=5I4X9SEH42B1Z325WBZIFJ1WNCE1VN1IVW`,
+        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${props.props}&startblock=0&endblock=9999999999&sort=asc&apikey=5I4X9SEH42B1Z325WBZIFJ1WNCE1VN1IVW`,
       )
         .then((results) => results.json())
         .then((data) => {
