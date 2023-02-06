@@ -127,21 +127,24 @@ export default function GetTableData(props) {
     for (let i = 0; i < apiData.length; i++) {
       let tx = apiData[i];
       let to = tx.to;
-      let value = tx.value;
-      let tags = [];
+      if (to !== props.props && to.startsWith('0x')) {
+        let value = tx.value;
+        let gas = tx.gas;
+        let tags = [];
 
-      tags = mainMapping[to] ? mainMapping[to] : [];
-      let date = new Date(tx.timeStamp * 1000).toLocaleDateString();
-      let time = new Date(tx.timeStamp * 1000).toLocaleTimeString();
-      let dateTime = date + ' ' + time;
+        tags = mainMapping[to] ? mainMapping[to] : [];
+        let date = new Date(tx.timeStamp * 1000).toLocaleDateString();
+        let time = new Date(tx.timeStamp * 1000).toLocaleTimeString();
+        let dateTime = date + ' ' + time;
 
-      let row = {
-        address: to,
-        amount: value,
-        tags: tags,
-        date: dateTime,
-      };
-      data.push(row);
+        let row = {
+          address: to,
+          amount: BigNumber.from(value).add(BigNumber.from(gas)).toString(),
+          tags: tags,
+          date: dateTime,
+        };
+        data.push(row);
+      }
     }
 
     return data;
@@ -337,7 +340,7 @@ export default function GetTableData(props) {
               data-bs-toggle="dropdown"
               onClick={() => handleUniqueTags()}
             >
-              {filterTag}
+              {filterTag === 'all' ? 'All tags' : filterTag}
             </button>
             <ul className="dropdown-menu" aria-labelledby="tagsList">
               <li>
@@ -346,7 +349,7 @@ export default function GetTableData(props) {
                   href="#"
                   onClick={() => handleFilter('all')}
                 >
-                  All
+                  All tags
                 </a>
               </li>
               {uniqueTags.map((item) => (
@@ -362,38 +365,44 @@ export default function GetTableData(props) {
               ))}
             </ul>
           </div>
-          {(filterTag !== 'all')?
-          <div className="form-group m-1">
-          <div className="row">
-            <div className="col">
-              <input
-                type="text"
-                className="form-control"
-                onChange={(e) => setLimit(e.target.value)}
-              />
+          {filterTag !== 'all' ? (
+            <div className="form-group m-1">
+              <div className="row">
+                <div className="col">
+                  <input
+                    type="text"
+                    className="form-control"
+                    onChange={(e) => setLimit(e.target.value)}
+                  />
+                </div>
+                <div className="col-3">
+                  <select
+                    className="fw-bold fs-4 form-select"
+                    aria-label="Select Unit"
+                    onChange={(e) => setUnit(e.target.value)}
+                  >
+                    <option value="wei" className="fs-4 fw-bold">
+                      wei
+                    </option>
+                    <option value="gwei" className="fs-4 fw-bold">
+                      gwei
+                    </option>
+                    <option value="eth" className="fs-4 fw-bold">
+                      eth
+                    </option>
+                  </select>
+                </div>
+                <div className="col-3">
+                  <button
+                    className="btn btn-primary m-1 fs-5 fw-bold w-100"
+                    onClick={() => handleSetLimit(limit, unit)}
+                  >
+                    Set Limit
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="col-3">
-              <select
-                className="fw-bold fs-4 form-select"
-                aria-label="Select Unit"
-                onChange={(e) => setUnit(e.target.value)}
-              >
-                <option value="wei" className='fs-4 fw-bold'>wei</option>
-                <option value="gwei" className='fs-4 fw-bold'>gwei</option>
-                <option value="eth" className='fs-4 fw-bold'>eth</option>
-              </select>
-            </div>
-            <div className="col-3">
-              <button
-                className="btn btn-primary m-1 fs-5 fw-bold w-100"
-                onClick={() => handleSetLimit(limit, unit)}
-              >
-                Set Limit
-              </button>
-            </div>
-          </div>
-        </div>
-          :null}
+          ) : null}
         </div>
       </div>
       <div className="d-flex justify-content-end">
@@ -470,6 +479,7 @@ export default function GetTableData(props) {
                           onClick={async () =>
                             await handleDeleteTag(item.address, tag)
                           }
+                          style={{ cursor: 'pointer' }}
                         >
                           <i className="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
                         </span>
@@ -480,6 +490,7 @@ export default function GetTableData(props) {
                       onClick={async () => {
                         await handleAddTag(item.address);
                       }}
+                      style={{ cursor: 'pointer' }}
                     >
                       +
                     </span>

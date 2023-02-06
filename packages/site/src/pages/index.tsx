@@ -219,7 +219,7 @@ const Index = () => {
         </div>
       </Container1>
 
-      <Container>
+      {/* <Container>
         <Heading>
           Welcome to <Span>template-snap</Span>
         </Heading>
@@ -294,7 +294,6 @@ const Index = () => {
               !shouldDisplayReconnectButton(state.installedSnap)
             }
           />
-          {/* <Container>hi</Container> */}
           <Notice>
             <p>
               Please note that the <b>snap.manifest.json</b> and{' '}
@@ -304,7 +303,7 @@ const Index = () => {
             </p>
           </Notice>
         </CardContainer>
-      </Container>
+      </Container> */}
     </Body>
   );
 };
