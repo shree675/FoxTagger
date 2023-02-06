@@ -16,10 +16,15 @@ const convert = {
   },
 };
 
-export default function GetTableData(props) {
+export default function GetTableData() {
   const [persistanceData, setPersistanceData] = useState({});
   const [uniqueTags, setUniqueTags] = useState([]);
   const [appData, setAppData] = useState('');
+
+  // todo : this is a hack, need to fix this
+  const [accountNo, setAccountNo] = useState(
+    '0x32f2e9ff23d7651beaa893d3a84ba26e7d848ab1',
+  );
   const [data, setData] = React.useState([]);
   const [dateRange, setDateRange] = React.useState({
     startDate: new Date('2000-01-01'),
@@ -53,9 +58,7 @@ export default function GetTableData(props) {
   const addtag = async (address, tag) => {
     console.log('add tag');
     let newPersistanceData = await getStorage();
-    let mainMapping =
-      newPersistanceData['0x58fbf7339825d9dcb0d37c19cd04485880c0a894']
-        .mainMapping;
+    let mainMapping = newPersistanceData[accountNo].mainMapping;
     if (!mainMapping) mainMapping = {};
     if (!mainMapping[address]) {
       mainMapping[address] = [];
@@ -78,9 +81,7 @@ export default function GetTableData(props) {
 
   const removetag = async (address, tag) => {
     let newPersistanceData = await getStorage();
-    let mainMapping =
-      newPersistanceData['0x58fbf7339825d9dcb0d37c19cd04485880c0a894']
-        .mainMapping;
+    let mainMapping = newPersistanceData[accountNo].mainMapping;
     if (!mainMapping) mainMapping = {};
     if (!mainMapping[address]) {
       mainMapping[address] = [];
@@ -99,20 +100,16 @@ export default function GetTableData(props) {
 
   const heuristicFilter = (persistanceData, apiData) => {
     if (!persistanceData || !apiData) return DATA_local;
-    let mainMapping =
-      persistanceData['0x58fbf7339825d9dcb0d37c19cd04485880c0a894'].mainMapping;
+    // if (persistanceData[accountNo] == undefined) return DATA_local;
+    let mainMapping = persistanceData[accountNo].mainMapping;
     console.log('mainMapping 97:', mainMapping);
     let data = [];
     for (let i = 0; i < apiData.length; i++) {
       let tx = apiData[i];
-      let to = tx.from;
+      let to = tx.to;
       let value = tx.value;
       let tags = [];
 
-      // console.log(mainMapping.has(to));
-      // if (mainMapping[to] && mainMapping[to].length > 0) {
-      //   tags = mainMapping[to];
-      // }
       tags = mainMapping[to] ? mainMapping[to] : [];
       let date = new Date(tx.timeStamp * 1000).toLocaleDateString();
       let time = new Date(tx.timeStamp * 1000).toLocaleTimeString();
@@ -131,42 +128,52 @@ export default function GetTableData(props) {
   };
 
   useEffect(() => {
+    if (window.ethereum.selectedAddress) {
+      const accountNo = window.ethereum.selectedAddress;
+      setAccountNo(accountNo);
+      console.log('useeffect log 2:', accountNo);
+    }
+  }, [accountNo]);
+
+  useEffect(() => {
     const getPersistanceStorage = async () => {
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       });
       // ensure acccounts is not null or undefined
+      // if (!accounts) {
+      //   return;
+      // }
       console.log('accounts :', accounts);
-      if (!accounts) {
-        return;
-      }
+      setAccountNo(accounts[0]);
 
       // initialize persistent storage
       let storageData = await getStorage();
       console.log('persistance storage :', storageData);
       setPersistanceData(storageData);
 
-      // let template = {
-      //   '0x58fbf7339825D9Dcb0d37C19CD04485880c0a894': {
-      //     mainMapping: {
-      //       '0x71c7656ec7ab88b098defb751b7401b5f6d8976f': [
-      //         'food2',
-      //         'entertainment',
-      //       ],
-      //       '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
-      //         'transportation',
-      //         'food',
-      //       ],
-      //       '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
-      //     },
-      //     usage: {},
-      //     latestHash: '',
-      //   },
-      // };
-
       let template = {
         abc: 'def',
         '0x58fbf7339825d9dcb0d37c19cd04485880c0a894': {
+          mainMapping: {
+            '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
+            '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
+              'transportation',
+              'food',
+            ],
+            '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
+          },
+          usage: {
+            todo: {
+              limit: '1000000000000000000',
+              used: '999999999999999999',
+              notified: true,
+            },
+          },
+          latestHash: '',
+        },
+
+        '0x32f2e9ff23d7651beaa893d3a84ba26e7d848ab1': {
           mainMapping: {
             '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
             '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
@@ -193,7 +200,7 @@ export default function GetTableData(props) {
       let storageData2 = await getStorage();
 
       fetch(
-        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=0x71C7656EC7ab88b098defB751B7401B5f6d8976F&startblock=0&endblock=9999999999&sort=asc&apikey=FFJRFMXZPG2H3K9QEMQ25Z1PZS67CIU8DJ`,
+        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${accountNo}&startblock=0&endblock=9999999999&sort=asc&apikey=5I4X9SEH42B1Z325WBZIFJ1WNCE1VN1IVW`,
       )
         .then((results) => results.json())
         .then((data) => {
@@ -205,49 +212,6 @@ export default function GetTableData(props) {
             setData(heuristicFilter(storageData2, temp));
           }
         });
-
-      // if (!storageData) {
-      //   storageData = {};
-      //   storageData[account] = { mainMapping: {}, usage: {}, latestHash: '' };
-      //   await setStorage(storageData);
-      // } else if (!storageData[account]) {
-      //   // an account already exists so set the same mainMapping for the new account
-      //   let prevAccount = null;
-      //   for (const existingAccount in storageData) {
-      //     if (Object.prototype.hasOwnProperty.call(storageData, existingAccount)) {
-      //       if (existingAccount.startsWith('0x')) {
-      //         prevAccount = existingAccount;
-      //       }
-      //     }
-      //   }
-
-      //   if (prevAccount === null || prevAccount === undefined) {
-      //     console.error(
-      //       'Persistent storage has not been initialized correctly.',
-      //     );
-      //     storageData[account] = { mainMapping: {}, usage: {}, latestHash: '' };
-      //   } else {
-      //     const { mainMapping } = storageData[prevAccount];
-      //     const { usage } = storageData[prevAccount];
-
-      //     for (const tag in usage) {
-      //       if (Object.prototype.hasOwnProperty.call(usage, tag)) {
-      //         usage[tag].limit = 0;
-      //         // used field will be updated later by a cron job
-      //         usage[tag].used = 0;
-      //         usage[tag].notified = false;
-      //       }
-      //     }
-
-      //     storageData[account] = {
-      //       mainMapping,
-      //       usage,
-      //       latestHash: '',
-      //     };
-      //   }
-
-      //   await setStorage(storageData);
-      // }
     };
     getPersistanceStorage();
   }, []);
