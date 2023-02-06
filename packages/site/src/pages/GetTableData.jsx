@@ -77,7 +77,6 @@ export default function GetTableData(props) {
   };
 
   const addtag = async (address, tag) => {
-    console.log('add tag');
     let newPersistanceData = await getStorage();
     let mainMapping = newPersistanceData[accountNo].mainMapping;
     if (!mainMapping) mainMapping = {};

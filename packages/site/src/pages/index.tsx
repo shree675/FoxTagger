@@ -203,15 +203,16 @@ const Index = () => {
         <div className="d-flex flex-column p-0 m-0">
           <div className="container-fluid h-100">
             <div className="row h-100">
-              <Section1 key={seed} />
-              {/* <div className="section2 col-12">
-                <Section3 />
-              </div> */}
-              <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
-                <Section4 />
+              <div className="col-lg-9">
+                <Section1 key={seed} />
               </div>
-              <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
-                <Section5 />
+              <div className="col-lg-3">
+                <div className="section3 align-items-center justify-content-center">
+                  <Section4 />
+                </div>
+                <div className="section3 align-items-center justify-content-center">
+                  <Section5 />
+                </div>
               </div>
             </div>
           </div>
