@@ -1,5 +1,3 @@
-//@ts-check
-
 import React, { useEffect, useState } from 'react';
 import DATA_local from './data';
 import { getStorage, setStorage } from '../utils/snap';
@@ -12,14 +10,33 @@ const convert = {
     return toEth(BigNumber.from(wei.toString()));
   },
   eth_wei: (eth) => {
-    return (BigNumber.from(wei) * BigNumber('1000000000000000000')).toString();
+    return (BigNumber.from(eth) * BigNumber('1000000000000000000')).toString();
+  },
+  gwei_wei: (gwei) => {
+    return (BigNumber.from(gwei) * BigNumber('1000000000')).toString();
   },
 };
 
 export default function GetTableData(props) {
   const [persistanceData, setPersistanceData] = useState({});
   const [uniqueTags, setUniqueTags] = useState([]);
+  const [limit, setLimit] = useState(10);
+  const [unit, setUnit] = useState('eth');
   const [appData, setAppData] = useState('');
+
+  function handleSetLimit(Limit, unit) {
+    //Get filter tag and in the tage usage change the limit
+    let newPersistanceData = persistanceData;
+    if (unit == 'eth') {
+      newPersistanceData[accountNo].usage[filterTag] = convert.eth_wei(Limit);
+    } else if (unit == 'gwei') {
+      newPersistanceData[accountNo].usage[filterTag] = convert.gwei_wei(Limit);
+    }
+    newPersistanceData[accountNo].usage[filterTag] = Limit;
+
+    setPersistanceData(newPersistanceData);
+    setStorage(newPersistanceData);
+  }
 
   // todo : this is a hack, need to fix this
   // const [accountNo, setAccountNo] = useState(
@@ -138,6 +155,11 @@ export default function GetTableData(props) {
   //     console.log('useeffect log 2:', accountNo);
   //   }
   // }, []);
+  function handleUniqueTags() {
+    // let uT = Object.keys(persistanceData[accountNo].usage);
+    let uT = ['food', 'travel', 'entertainment'];
+    setUniqueTags(uT);
+  }
 
   useEffect(() => {
     const getPersistanceStorage = async () => {
@@ -274,6 +296,8 @@ export default function GetTableData(props) {
       }
     });
 
+  //Set the unique tags to keys of usage key of persistance storage
+
   return (
     <div>
       <div className="row gx-1 gy-1">
@@ -306,50 +330,71 @@ export default function GetTableData(props) {
           </div>
         </div>
         <div className="col-lg-6 col-12 text-end">
-          <div className="btn-group">
+          <div className="dropdown">
             <button
-              className={
-                'btn btn-' + (filterTag === 'all' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('all')}
+              className="btn btn-secondary dropdown-toggle"
+              type="button"
+              id="tagsList"
+              data-bs-toggle="dropdown"
+              onClick={() => handleUniqueTags()}
             >
-              All
+              {filterTag}
             </button>
-            <button
-              className={
-                'btn btn-' + (filterTag === 'food' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('food')}
-            >
-              Food
-            </button>
-            <button
-              className={
-                'btn btn-' + (filterTag === 'travel' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('travel')}
-            >
-              Travel
-            </button>
-            <button
-              className={
-                'btn btn-' +
-                (filterTag === 'shopping' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('shopping')}
-            >
-              Shopping
-            </button>
-            <button
-              className={
-                'btn btn-' +
-                (filterTag === 'entertainment' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('entertainment')}
-            >
-              Entertainment
-            </button>
+            <ul className="dropdown-menu" aria-labelledby="tagsList">
+              <li>
+                <a
+                  className="dropdown-item  fs-4 fw-bold"
+                  href="#"
+                  onClick={() => handleFilter('all')}
+                >
+                  All
+                </a>
+              </li>
+              {uniqueTags.map((item) => (
+                <li>
+                  <a
+                    className="dropdown-item  fs-4"
+                    href="#"
+                    onClick={() => handleFilter(item)}
+                  >
+                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
+          {(filterTag !== 'all')?
+          <div className="form-group m-1">
+          <div className="row">
+            <div className="col">
+              <input
+                type="text"
+                className="form-control"
+                onChange={(e) => setLimit(e.target.value)}
+              />
+            </div>
+            <div className="col-3">
+              <select
+                className="fw-bold fs-4 form-select"
+                aria-label="Select Unit"
+                onChange={(e) => setUnit(e.target.value)}
+              >
+                <option value="wei" className='fs-4 fw-bold'>wei</option>
+                <option value="gwei" className='fs-4 fw-bold'>gwei</option>
+                <option value="eth" className='fs-4 fw-bold'>eth</option>
+              </select>
+            </div>
+            <div className="col-3">
+              <button
+                className="btn btn-primary m-1 fs-5 fw-bold w-100"
+                onClick={() => handleSetLimit(limit, unit)}
+              >
+                Set Limit
+              </button>
+            </div>
+          </div>
+        </div>
+          :null}
         </div>
       </div>
       <div className="d-flex justify-content-end">
