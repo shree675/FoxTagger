@@ -2775,9 +2775,10 @@ __metadata:
     "@popperjs/core": ^2.11.6
     "@typescript-eslint/eslint-plugin": ^5.33.0
     "@typescript-eslint/parser": ^5.33.0
-    "@xmtp/xmtp-js": ^7.8.0
+    "@xmtp/xmtp-js": 7.0.0
     bootstrap: ^5.2.3
     bootstrap-icons: ^1.10.3
+    buffer: ^6.0.3
     dotenv: ^16.0.3
     eslint: ^8.21.0
     eslint-config-prettier: ^8.1.0
@@ -2787,6 +2788,7 @@ __metadata:
     eslint-plugin-node: ^11.1.0
     eslint-plugin-prettier: ^4.2.1
     ethers: ^6.0.2
+    global: ^4.4.0
     jquery: ^3.6.3
     prettier: ^2.2.1
     prettier-plugin-packagejson: ^2.2.18
@@ -4684,7 +4686,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmtp/proto@npm:^3.12.0":
+"@xmtp/proto@npm:^3.12.0, @xmtp/proto@npm:^3.4.0":
   version: 3.12.3
   resolution: "@xmtp/proto@npm:3.12.3"
   dependencies:
@@ -4692,6 +4694,19 @@ __metadata:
     protobufjs: ^7.0.0
     undici: ^5.8.1
   checksum: 65de45171190f796ef0c98e4f0ba95b47efe90f0a1ae7e161cfb6f940cec383db7c61e9a5176c3b1ff79a53f354dbb88d3933ff02f6a7b1a01c186d73737d423
+  languageName: node
+  linkType: hard
+
+"@xmtp/xmtp-js@npm:7.0.0":
+  version: 7.0.0
+  resolution: "@xmtp/xmtp-js@npm:7.0.0"
+  dependencies:
+    "@noble/secp256k1": ^1.5.2
+    "@stardazed/streams-polyfill": ^2.4.0
+    "@xmtp/proto": ^3.4.0
+    ethers: ^5.5.3
+    long: ^5.2.0
+  checksum: 4faad2bad48804b98cbd892b87efb60ebc2ddd2ba53d79ae5234719cd61f53d8e354931fbb5c04933bb648e89dcf950a54d47fe5d34c808600df29b2a2bc37ea
   languageName: node
   linkType: hard
 
@@ -5989,6 +6004,16 @@ __metadata:
     base64-js: ^1.3.1
     ieee754: ^1.1.13
   checksum: e2cf8429e1c4c7b8cbd30834ac09bd61da46ce35f5c22a78e6c2f04497d6d25541b16881e30a019c6fd3154150650ccee27a308eff3e26229d788bbdeb08ab84
+  languageName: node
+  linkType: hard
+
+"buffer@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "buffer@npm:6.0.3"
+  dependencies:
+    base64-js: ^1.3.1
+    ieee754: ^1.2.1
+  checksum: 5ad23293d9a731e4318e420025800b42bf0d264004c0286c8cc010af7a270c7a0f6522e84f54b9ad65cbd6db20b8badbfd8d2ebf4f80fa03dab093b89e68c3f9
   languageName: node
   linkType: hard
 
@@ -7645,6 +7670,13 @@ __metadata:
     domhandler: ^4.2.0
     entities: ^2.0.0
   checksum: fbb0b01f87a8a2d18e6e5a388ad0f7ec4a5c05c06d219377da1abc7bb0f674d804f4a8a94e3f71ff15f6cb7dcfc75704a54b261db672b9b3ab03da6b758b0b22
+  languageName: node
+  linkType: hard
+
+"dom-walk@npm:^0.1.0":
+  version: 0.1.2
+  resolution: "dom-walk@npm:0.1.2"
+  checksum: 19eb0ce9c6de39d5e231530685248545d9cd2bd97b2cb3486e0bfc0f2a393a9addddfd5557463a932b52fdfcf68ad2a619020cd2c74a5fe46fbecaa8e80872f3
   languageName: node
   linkType: hard
 
@@ -10075,6 +10107,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"global@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "global@npm:4.4.0"
+  dependencies:
+    min-document: ^2.19.0
+    process: ^0.11.10
+  checksum: 9c057557c8f5a5bcfbeb9378ba4fe2255d04679452be504608dd5f13b54edf79f7be1db1031ea06a4ec6edd3b9f5f17d2d172fb47e6c69dae57fd84b7e72b77f
+  languageName: node
+  linkType: hard
+
 "globals@npm:^11.1.0":
   version: 11.12.0
   resolution: "globals@npm:11.12.0"
@@ -12419,6 +12461,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"min-document@npm:^2.19.0":
+  version: 2.19.0
+  resolution: "min-document@npm:2.19.0"
+  dependencies:
+    dom-walk: ^0.1.0
+  checksum: da6437562ea2228041542a2384528e74e22d1daa1a4ec439c165abf0b9d8a63e17e3b8a6dc6e0c731845e85301198730426932a0e813d23f932ca668340c9623
+  languageName: node
+  linkType: hard
+
 "min-indent@npm:^1.0.0":
   version: 1.0.1
   resolution: "min-indent@npm:1.0.1"
@@ -14239,7 +14290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"process@npm:~0.11.0":
+"process@npm:^0.11.10, process@npm:~0.11.0":
   version: 0.11.10
   resolution: "process@npm:0.11.10"
   checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
@@ -15630,6 +15681,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.33.0
     "@typescript-eslint/parser": ^5.33.0
     "@xmtp/xmtp-js": ^7.8.0
+    buffer: ^6.0.3
     chart.js: ^4.2.0
     cross-env: ^7.0.3
     eslint: ^8.21.0

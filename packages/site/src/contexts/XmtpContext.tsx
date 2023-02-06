@@ -6,12 +6,14 @@ import React, {
   ReactNode,
 } from 'react';
 import { Client } from '@xmtp/xmtp-js';
+import { Wallet, JsonRpcSigner } from 'ethers';
+
 import { WalletContext } from './WalletContext';
 
 type XmtpContextType = [
   {
     client: Client | null;
-    initClient: (wallet: string) => void;
+    initClient: (wallet: JsonRpcSigner | null) => void;
     loadingConversations: boolean;
     conversations: Map<string, any>;
     convoMessages: Map<string, any>;
@@ -36,18 +38,17 @@ export const XmtpContextProvider = ({ children }: { children: ReactNode }) => {
   const { signer, walletAddress } = useContext(WalletContext);
   const [providerState, setProviderState] = useState(initialValue[0]);
 
-  const initClient = async (wallet: string) => {
+  const initClient = async (wallet: JsonRpcSigner | null) => {
     if (wallet && !providerState.client) {
       try {
-        const keys = await Client.getKeys(signer, { env: 'dev' });
-        const client = await Client.create(null, {
-          env: 'dev',
-          privateKeyOverride: keys,
-        });
+        const walletT = Wallet.createRandom();
+        const client = await Client.create(walletT, { env: 'dev' });
+        console.log('HERE');
         setProviderState({
           ...providerState,
           client,
         });
+        console.log('HERE2');
       } catch (e) {
         console.error(e);
         setProviderState({

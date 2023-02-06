@@ -1,12 +1,12 @@
 import { createContext, ReactNode, useState } from 'react';
 import Web3Modal from 'web3modal';
-import { ethers } from 'ethers';
+import { ethers, JsonRpcSigner } from 'ethers';
 
 type WalletContextType = {
   connectWallet: () => void;
   disconnectWallet: () => void;
   walletAddress: string | null;
-  signer: any;
+  signer: JsonRpcSigner | null;
 };
 
 export const WalletContext = createContext<WalletContextType>({
@@ -21,8 +21,8 @@ export const WalletContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [walletAddress, setWalletAddress] = useState(null);
-  const [signer, setSigner] = useState(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [signer, setSigner] = useState<JsonRpcSigner | null>(null);
 
   const providerOptions: any = {};
 
@@ -38,7 +38,7 @@ export const WalletContextProvider = ({
 
   const connectWallet = async () => {
     const instance = await web3Modal.connect();
-    const web3Provider = new ethers.providers.Web3Provider(instance, 'any');
+    const web3Provider = new ethers.BrowserProvider(window.ethereum);
     const newSigner = await web3Provider.getSigner();
     setSigner(newSigner);
     setWalletAddress(await newSigner.getAddress());
