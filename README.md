@@ -11,6 +11,7 @@ Since cryptocurrency usage through Metamask is expected to increase many-fold in
 * Clone this repository.
 * Run the below:
 ```shell
+yarn prep
 yarn install && yarn start
 ```
 * The web app spins up at https://localhost:8000 and the snaps runs at https://localhost:8080.
