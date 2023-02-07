@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
-import DATA_local from './data';
 
 import {
   clearStorage,
@@ -10,23 +9,9 @@ import {
   getStorage,
   notify,
   setStorage,
-  shouldDisplayReconnectButton,
 } from '../utils';
-import {
-  ConnectButton,
-  InstallFlaskButton,
-  ReconnectButton,
-  SendHelloButton,
-  Card,
-} from '../components';
 
-import Footer from './Footer';
-import Navbar from './Navbar';
 import Section1 from './Section1';
-import Section3 from './Section3';
-import Section4 from './Section4';
-import Section5 from './Section5';
-import Analytics from './Analytics';
 
 const Body = styled.div`
   background-color: ${(props) => props.theme.colors.background.default};
@@ -162,7 +147,12 @@ const Index = () => {
     console.log('storage: ', storage);
     if (!storage?.[account]) {
       storage = {};
-      storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
+      storage[account] = {
+        mainMapping: {},
+        usage: {},
+        latestHash: '',
+        prevHash: '',
+      };
       await setStorage(storage);
     }
     setSeed(Math.random());
@@ -203,107 +193,11 @@ const Index = () => {
         <div className="d-flex flex-column p-0 m-0">
           <div className="container-fluid h-100">
             <div className="row h-100">
-              <div className="col-lg-9">
-                <Section1 key={seed} />
-              </div>
-              <div className="col-lg-3">
-                <div className="section3 align-items-center justify-content-center">
-                  <Section4 />
-                </div>
-                <div className="section3 align-items-center justify-content-center">
-                  <Section5 />
-                </div>
-              </div>
+              <Section1 key={seed} />
             </div>
           </div>
         </div>
       </Container1>
-
-      {/* <Container>
-        <Heading>
-          Welcome to <Span>template-snap</Span>
-        </Heading>
-        <Subtitle>
-          Get started by editing <code>src/index.ts</code>
-        </Subtitle>
-        <CardContainer>
-          {state.error && (
-            <ErrorMessage>
-              <b>An error happened:</b> {state.error.message}
-            </ErrorMessage>
-          )}
-          {!state.isFlask && (
-            <Card
-              content={{
-                title: 'Install',
-                description:
-                  'Snaps is pre-release software only available in MetaMask Flask, a canary distribution for developers with access to upcoming features.',
-                button: <InstallFlaskButton />,
-              }}
-              fullWidth
-            />
-          )}
-          {!state.installedSnap && (
-            <Card
-              content={{
-                title: 'Connect',
-                description:
-                  'Get started by connecting to and installing the example snap.',
-                button: (
-                  <ConnectButton
-                    onClick={handleConnectClick}
-                    disabled={!state.isFlask}
-                  />
-                ),
-              }}
-              disabled={!state.isFlask}
-            />
-          )}
-          {shouldDisplayReconnectButton(state.installedSnap) && (
-            <Card
-              content={{
-                title: 'Reconnect',
-                description:
-                  'While connected to a local running snap this button will always be displayed in order to update the snap if a change is made.',
-                button: (
-                  <ReconnectButton
-                    onClick={handleConnectClick}
-                    disabled={!state.installedSnap}
-                  />
-                ),
-              }}
-              disabled={!state.installedSnap}
-            />
-          )}
-          <Card
-            content={{
-              title: 'Send Hello message',
-              description:
-                'Display a custom message within a confirmation screen in MetaMask.',
-              button: (
-                <SendHelloButton
-                  onClick={handleSendHelloClick}
-                  disabled={!state.installedSnap}
-                />
-              ),
-            }}
-            disabled={!state.installedSnap}
-            fullWidth={
-              state.isFlask &&
-              Boolean(state.installedSnap) &&
-              !shouldDisplayReconnectButton(state.installedSnap)
-            }
-          />
-          <Notice>
-            <p>
-              Please note that the <b>snap.manifest.json</b> and{' '}
-              <b>package.json</b> must be located in the server root directory
-              and the bundle must be hosted at the location specified by the
-              location field.
-            </p>
-          </Notice>
-        </CardContainer>
-      </Container> */}
     </Body>
   );
 };

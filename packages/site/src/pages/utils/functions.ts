@@ -27,6 +27,10 @@ export const toEth = (wei: BigNumber) => {
   return `${Number(utils.formatEther(wei)).toFixed(18)} GoerliETH`;
 };
 
+export const toEthInt = (wei: BigNumber) => {
+  return `${Number(utils.formatEther(wei)).toFixed(18)}`;
+};
+
 export const compact = (hash: string) => {
   return `${hash.slice(0, 5)}...${hash.slice(hash.length - 4, hash.length)}`;
 };

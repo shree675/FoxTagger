@@ -1,13 +1,13 @@
 {
   "version": "0.1.0",
   "description": "An example Snap written in TypeScript.",
-  "proposedName": "Tic-Tag-Toe Snap",
+  "proposedName": "FoxTagger Snap",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "fVwRHiS4KFKPK7mQSTb/ojoXXgOO4x/0WjDVfCF82N0=",
+    "shasum": "cYBoDBg5A0vN43saDk2bumwuMjG8em8bO6c9vELUyRk=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

@@ -1,7 +1,10 @@
+//@ts-check
 import React, { useEffect, useState } from 'react';
 import DATA_local from './data';
 import { getStorage, setStorage } from '../utils/snap';
-import { compact, toEth } from './utils/functions';
+import { compact, toEth, toEthInt } from './utils/functions';
+import 'chart.js/auto';
+import { FixedNumber } from 'ethers';
 
 import './tableDesign.css';
 import { BigNumber } from 'ethers';
@@ -10,6 +13,9 @@ import { Doughnut } from 'react-chartjs-2';
 const convert = {
   wei_eth: (wei) => {
     return toEth(BigNumber.from(wei.toString()));
+  },
+  wei_eth_int: (wei) => {
+    return toEthInt(BigNumber.from(wei.toString()));
   },
   eth_wei: (eth) => {
     return (
@@ -32,7 +38,6 @@ export default function GetTableData(props) {
   const [appData, setAppData] = useState('');
 
   async function handleSetLimit(Limit, unit) {
-    //Get filter tag and in the tage usage change the limit
     let newPersistanceData = persistanceData;
     if (unit == 'eth') {
       newPersistanceData[accountNo].usage[filterTag].limit =
@@ -40,11 +45,11 @@ export default function GetTableData(props) {
     } else if (unit == 'gwei') {
       newPersistanceData[accountNo].usage[filterTag].limit =
         convert.gwei_wei(Limit);
-    }
-    newPersistanceData[accountNo].usage[filterTag].limit = Limit;
+    } else newPersistanceData[accountNo].usage[filterTag].limit = Limit;
 
     setPersistanceData(newPersistanceData);
     await setStorage(newPersistanceData);
+    window.location.reload();
   }
 
   // get data from TableSection.jsx
@@ -63,7 +68,6 @@ export default function GetTableData(props) {
     endDate: new Date(0),
   });
   const [cM, setCM] = React.useState([]);
-  const [tag, setTag] = React.useState([]);
 
   const colorMap = (tag) => {
     if (cM[tag]) return cM[tag];
@@ -90,7 +94,6 @@ export default function GetTableData(props) {
     if (!mainMapping[address].includes(tag)) {
       mainMapping[address].push(tag);
 
-      //create entire in usage with {limit: '1000000000000000000', used: '999999999999999999', notified: true}
       let usage = newPersistanceData[accountNo].usage;
       if (!usage) usage = {};
       if (!usage[tag]) {
@@ -101,8 +104,10 @@ export default function GetTableData(props) {
         };
       }
     }
+    newPersistanceData[accountNo].latestHash =
+      newPersistanceData[accountNo].prevHash;
     setPersistanceData(newPersistanceData);
-    console.log('newPersistanceData 97:', newPersistanceData);
+    // console.log('newPersistanceData 97:', newPersistanceData);
     await setStorage(newPersistanceData);
     setData(heuristicFilter(newPersistanceData, appData));
   };
@@ -129,10 +134,11 @@ export default function GetTableData(props) {
       if (!usage) usage = {};
       if (usage[tag]) {
         delete usage[tag];
-
         setFilterTag('all');
       }
     }
+    newPersistanceData[accountNo].latestHash =
+      newPersistanceData[accountNo].prevHash;
     setPersistanceData(newPersistanceData);
     await setStorage(newPersistanceData);
     setData(heuristicFilter(newPersistanceData, appData));
@@ -232,24 +238,6 @@ export default function GetTableData(props) {
           },
           latestHash: '',
         },
-        '': {
-          mainMapping: {
-            '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
-            '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
-              'transportation',
-              'food',
-            ],
-            '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
-          },
-          usage: {
-            todo: {
-              limit: '1000000000000000000',
-              used: '0',
-              notified: false,
-            },
-          },
-          latestHash: '',
-        },
       };
 
       if (!storageData['abc']) {
@@ -266,7 +254,7 @@ export default function GetTableData(props) {
           if (data && data.message == 'OK') {
             const temp = data.result;
             setAppData(temp);
-            console.log('165', storageData2);
+            // console.log('165', storageData2);
             setData(heuristicFilter(storageData2, temp));
           }
         });
@@ -292,9 +280,7 @@ export default function GetTableData(props) {
   };
 
   useEffect(() => {
-    // console.log('data local:', DATA_local);
     setData(DATA_local);
-
     setFilterDateRange(dateRange);
   }, [dateRange]);
 
@@ -328,13 +314,11 @@ export default function GetTableData(props) {
       }
     });
 
-  // todo call when setStorage is called
-  // todo use usage instead of limit (limit called because usage is zero)
   useEffect(() => {
     let dataArray =
       persistanceData[accountNo] && persistanceData[accountNo].usage
         ? Object.values(persistanceData[accountNo].usage).map((item) => {
-            return item.used;
+            return convert['wei_eth_int'](item.used);
           })
         : [...Array(uniqueTags.length).fill(10)];
     console.log('data array :', dataArray);
@@ -388,212 +372,278 @@ export default function GetTableData(props) {
   return (
     <div>
       <div className="row gx-1 gy-1">
-        <div className="col-lg-6 col-12">
-          <div className="btn-group">
-            <button
-              className={
-                'btn btn-' + (sortField === 'date' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleSort('date')}
-            >
-              Date
-            </button>
-            <button
-              className={
-                'btn btn-' + (sortField === 'amount' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleSort('amount')}
-            >
-              Amount
-            </button>
-            <button
-              className={
-                'btn disabled btn-' +
-                (sortDirection === 'asc' ? 'success' : 'danger')
-              }
-            >
-              {sortDirection === 'asc' ? 'Asc' : 'Desc'}
-            </button>
+        <div className="col-lg-9 col-md-6 col-12">
+          <div className="col-12">
+            <div className="btn-group">
+              <button
+                className={
+                  'btn btn-' + (sortField === 'date' ? 'primary' : 'secondary')
+                }
+                onClick={() => handleSort('date')}
+              >
+                Date
+              </button>
+              <button
+                className={
+                  'btn btn-' +
+                  (sortField === 'amount' ? 'primary' : 'secondary')
+                }
+                onClick={() => handleSort('amount')}
+              >
+                Amount
+              </button>
+              <button
+                className={
+                  'btn disabled btn-' +
+                  (sortDirection === 'asc' ? 'success' : 'danger')
+                }
+              >
+                {sortDirection === 'asc' ? 'Asc' : 'Desc'}
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="col-lg-6 col-12 text-end">
-          <div className="dropdown">
-            <button
-              className="btn btn-secondary dropdown-toggle"
-              type="button"
-              id="tagsList"
-              data-bs-toggle="dropdown"
-              onClick={() => handleUniqueTags()}
-            >
-              {filterTag === 'all' ? 'All tags' : filterTag}
-            </button>
-            <ul className="dropdown-menu" aria-labelledby="tagsList">
-              <li>
-                <a
-                  className="dropdown-item  fs-4 fw-bold"
-                  href="#"
-                  onClick={() => handleFilter('all')}
-                >
-                  All tags
-                </a>
-              </li>
-              {uniqueTags.map((item) => (
+          <div className="col-12 text-end">
+            <div className="dropdown">
+              <button
+                className="btn btn-secondary dropdown-toggle"
+                type="button"
+                id="tagsList"
+                data-bs-toggle="dropdown"
+                onClick={() => handleUniqueTags()}
+              >
+                {filterTag === 'all' ? 'All tags' : filterTag}
+              </button>
+              <ul className="dropdown-menu" aria-labelledby="tagsList">
                 <li>
                   <a
-                    className="dropdown-item  fs-4"
+                    className="dropdown-item  fs-4 fw-bold"
                     href="#"
-                    onClick={() => handleFilter(item)}
+                    onClick={() => handleFilter('all')}
                   >
-                    {item.charAt(0) + item.slice(1)}
+                    All tags
                   </a>
                 </li>
-              ))}
-            </ul>
-          </div>
-          {filterTag !== 'all' ? (
-            <div className="form-group m-1">
-              <div className="row">
-                <div className="col">
-                  <input
-                    type="text"
-                    className="form-control"
-                    onChange={(e) => setLimit(e.target.value)}
-                  />
-                </div>
-                <div className="col-3">
-                  <select
-                    className="fw-bold fs-4 form-select"
-                    aria-label="Select Unit"
-                    onChange={(e) => setUnit(e.target.value)}
-                  >
-                    <option value="wei" className="fs-4 fw-bold">
-                      wei
-                    </option>
-                    <option value="gwei" className="fs-4 fw-bold">
-                      gwei
-                    </option>
-                    <option value="eth" className="fs-4 fw-bold">
-                      eth
-                    </option>
-                  </select>
-                </div>
-                <div className="col-3">
-                  <button
-                    className="btn btn-primary m-1 fs-5 fw-bold w-100"
-                    onClick={async () => await handleSetLimit(limit, unit)}
-                  >
-                    Set Limit
-                  </button>
+                {uniqueTags.map((item) => (
+                  <li>
+                    <a
+                      className="dropdown-item  fs-4"
+                      href="#"
+                      onClick={() => handleFilter(item)}
+                    >
+                      {item.charAt(0) + item.slice(1)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {filterTag !== 'all' ? (
+              <div className="form-group m-1">
+                <div className="row">
+                  <div className="col">
+                    <input
+                      type="text"
+                      className="form-control"
+                      onChange={(e) => setLimit(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-3">
+                    <select
+                      className="fw-bold fs-4 form-select"
+                      aria-label="Select Unit"
+                      onChange={(e) => setUnit(e.target.value)}
+                    >
+                      <option value="wei" className="fs-4 fw-bold">
+                        wei
+                      </option>
+                      <option value="gwei" className="fs-4 fw-bold">
+                        gwei
+                      </option>
+                      <option value="eth" className="fs-4 fw-bold">
+                        eth
+                      </option>
+                    </select>
+                  </div>
+                  <div className="col-3">
+                    <button
+                      className="btn btn-primary m-1 fs-5 fw-bold w-100"
+                      onClick={async () => await handleSetLimit(limit, unit)}
+                    >
+                      Set Limit
+                    </button>
+                  </div>
                 </div>
               </div>
+            ) : null}
+          </div>
+          <div className="d-flex justify-content-end">
+            <div className="form-group m-1">
+              <input
+                type="date"
+                className="form-control"
+                onChange={(e) =>
+                  setDateRange({ ...dateRange, startDate: e.target.value })
+                }
+              />
             </div>
-          ) : null}
-        </div>
-      </div>
-      <div className="d-flex justify-content-end">
-        <div className="form-group m-1">
-          <input
-            type="date"
-            className="form-control"
-            onChange={(e) =>
-              setDateRange({ ...dateRange, startDate: e.target.value })
-            }
-          />
-        </div>
-        <div className="form-group m-1">
-          <input
-            type="date"
-            className="form-control"
-            onChange={(e) =>
-              setDateRange({ ...dateRange, endDate: e.target.value })
-            }
-          />
-          <button
-            className="btn btn-primary m-1"
-            onClick={() => handleFilterDate(dateRange)}
-          >
-            Filter Date
-          </button>
-          <button
-            className="btn btn-primary m-1"
-            onClick={() =>
-              handleFilterDate({
-                startDate: new Date('2000-01-01'),
-                endDate: new Date('2100-01-01'),
-              })
-            }
-          >
-            Reset Date
-          </button>
-        </div>
-      </div>
-      <div className="table-responsive">
-        <table className="table text-muted">
-          <thead>
-            <tr className="text-dark fs-3">
-              <th colSpan={2}>Address</th>
-              <th colSpan={1}>Date</th>
-              <th colSpan={1}>Amount</th>
-              <th colSpan={2}>Tags</th>
-            </tr>
-          </thead>
-          <tbody className="text-dark">
-            {finalData.map((item) => (
-              <tr key={item._id}>
-                <td colSpan={2} className="align-middle">
-                  {compact(item.address)}
-                </td>
-                <td colSpan={1} className="align-middle">
-                  {item.date}
-                </td>
-                <td colSpan={1} className="align-middle">
-                  {convert['wei_eth'](item.amount)}
-                </td>
-                <td colSpan={2}>
-                  <div>
-                    {item.tags.map((tag) => (
-                      <span
-                        className={
-                          'badge pe-3 ps-3 p-2 m-1 shadow rounded-pill '
-                        }
-                        style={{ backgroundColor: colorMap(tag) }}
-                      >
-                        <span className="align-middle">{tag}</span>
+            <div className="form-group m-1">
+              <input
+                type="date"
+                className="form-control"
+                onChange={(e) =>
+                  setDateRange({ ...dateRange, endDate: e.target.value })
+                }
+              />
+              <button
+                className="btn btn-primary m-1"
+                onClick={() => handleFilterDate(dateRange)}
+              >
+                Filter Date
+              </button>
+              <button
+                className="btn btn-primary m-1"
+                onClick={() => {
+                  handleFilterDate({
+                    startDate: new Date('2000-01-01'),
+                    endDate: new Date('2100-01-01'),
+                  });
+                  window.location.reload();
+                }}
+              >
+                Reset Date
+              </button>
+            </div>
+          </div>
+          <div className="table-responsive">
+            <table className="table text-muted">
+              <thead>
+                <tr className="text-dark fs-3">
+                  <th colSpan={2}>Address</th>
+                  <th colSpan={1}>Date</th>
+                  <th colSpan={1}>Amount</th>
+                  <th colSpan={2}>Tags</th>
+                </tr>
+              </thead>
+              <tbody className="text-dark">
+                {finalData.map((item) => (
+                  <tr key={item._id}>
+                    <td colSpan={2} className="align-middle">
+                      {compact(item.address)}
+                    </td>
+                    <td colSpan={1} className="align-middle">
+                      {item.date}
+                    </td>
+                    <td colSpan={1} className="align-middle">
+                      {convert['wei_eth'](item.amount)}
+                    </td>
+                    <td colSpan={2}>
+                      <div>
+                        {item.tags.map((tag) => (
+                          <span
+                            className={
+                              'badge pe-3 ps-3 p-2 m-1 shadow rounded-pill '
+                            }
+                            style={{ backgroundColor: colorMap(tag) }}
+                          >
+                            <span className="align-middle">{tag}</span>
+                            <span
+                              className="text-dark fw-bold fs-4 ms-2 align-middle"
+                              onClick={async () =>
+                                await handleDeleteTag(item.address, tag)
+                              }
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <i className="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
+                            </span>
+                          </span>
+                        ))}
                         <span
-                          className="text-dark fw-bold fs-4 ms-2 align-middle"
-                          onClick={async () =>
-                            await handleDeleteTag(item.address, tag)
-                          }
+                          className="badge bg-success shadow text-white rounded-pill"
+                          onClick={async () => {
+                            await handleAddTag(item.address);
+                          }}
                           style={{ cursor: 'pointer' }}
                         >
-                          <i className="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
+                          +
                         </span>
-                      </span>
-                    ))}
-                    <span
-                      className="badge bg-success shadow text-white rounded-pill"
-                      onClick={async () => {
-                        await handleAddTag(item.address);
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      +
-                    </span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="col-lg-3 col-md-6 col-12">
+          {usageArray.length > 0 && piedata && persistanceData[accountNo] ? (
+            <>
+              <h4 className="p-2 mt-3 fw-bold">Spending Breakdown</h4>
+              <Doughnut data={piedata} />
+              <h4 className="p-2 fw-bold">Tag Usage </h4>
+
+              {uniqueTags.map((tag) => {
+                let used, limit;
+                try {
+                  used = persistanceData[accountNo].usage[tag].used;
+                  limit = persistanceData[accountNo].usage[tag].limit;
+                } catch (err) {
+                  used = 56;
+                  limit = 100;
+                }
+
+                console.log(used, limit);
+
+                const usedF = FixedNumber.from(used);
+                const limitF = FixedNumber.from(limit);
+                let percentage = Number(
+                  (Number(usedF.divUnsafe(limitF).toString()) * 100).toFixed(2),
+                );
+                return (
+                  <div className="" style={{ padding: 10 }}>
+                    <div className="col-sm-auto"> {tag} </div>
+                    <div className="row">
+                      <div className="col-sm-auto"> {percentage} % </div>
+                      <div
+                        className="bg-light rounded border col"
+                        style={{ padding: 0, height: 'fit-content' }}
+                      >
+                        <div
+                          className="bg-success rounded"
+                          style={{
+                            height: 20,
+                            width: percentage < 1 ? 1 : percentage,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div>
-        {usageArray.length > 0 && piedata ? (
-          <>
-            <h4 className="p-2 mt-3 fw-bold">Spending Breakdown</h4>
-            <Doughnut data={piedata} />
-          </>
-        ) : null}
+                );
+              })}
+            </>
+          ) : null}
+        </div>
       </div>
     </div>
   );
 }
+
+/*
+<>
+              <div className="" style={{ padding: 10 }}>
+                <h4 className="p-2 fw-bold">Tags Limits </h4>
+
+                <div className="col-sm-auto"> ads </div>
+                <div className="row">
+                  <div className="col-sm-auto"> 43% </div>
+                  <div
+                    className="bg-light rounded border col"
+                    style={{ padding: 0, height: 'fit-content' }}
+                  >
+                    <div
+                      className="bg-success rounded"
+                      style={{ height: 20, width: 43 + '%' }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </>
+*/

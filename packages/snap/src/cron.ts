@@ -114,6 +114,7 @@ export const updateAmount = async (account: string, completeStorage: any) => {
   );
 
   const { latestHash } = completeStorage[account];
+  const { prevHash } = completeStorage[account];
 
   if (transactions[0].hash.toLowerCase() === latestHash) {
     return null;
@@ -135,17 +136,23 @@ export const updateAmount = async (account: string, completeStorage: any) => {
           );
           const value = BigNumber.from(transaction.value);
           const total = gas.add(value);
-
-          completeStorage[account].usage[tag].used = BigNumber.from(
-            completeStorage[account].usage[tag].used,
-          )
-            .add(total)
-            .toString();
+          if (prevHash !== latestHash) {
+            completeStorage[account].usage[tag].used = BigNumber.from(
+              completeStorage[account].usage[tag].used,
+            )
+              .add(total)
+              .toString();
+          } else {
+            completeStorage[account].usage[tag].used = BigNumber.from('0')
+              .add(total)
+              .toString();
+          }
         }
       }
     }
   }
 
+  completeStorage[account].prevHash = latestHash;
   completeStorage[account].latestHash = transactions[0].hash.toLowerCase();
 
   return completeStorage;
