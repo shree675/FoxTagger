@@ -5,18 +5,8 @@ import {
 } from '@metamask/snap-types';
 import { checkLimits, getSummary, updateAmount } from './cron';
 import { getDetails } from './transaction';
-import {
-  SUMMARY_HEADER,
-  SUMMARY_EXCEEDED,
-  SUMMARY_EXCEEDED_FOOTER,
-  SUMMARY_FOOTER,
-  SUMMARY_SAFE_FOOTER,
-} from './utils/constants';
-import {
-  compact,
-  getPersistentStorage,
-  setPersistentStorage,
-} from './utils/functions';
+import { SUMMARY_EXCEEDED, SUMMARY_SAFE_FOOTER } from './utils/constants';
+import { getPersistentStorage, setPersistentStorage } from './utils/functions';
 
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.

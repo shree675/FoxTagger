@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { compact, setPersistentStorage } from './utils/functions';
-import { LIMIT_ALERT_FOOTER, LIMIT_ALERT_HEADER } from './utils/constants';
+import { LIMIT_ALERT_HEADER } from './utils/constants';
 
 export const checkLimits = async (account: string, completeStorage: any) => {
   const storage = completeStorage[account];

@@ -25,12 +25,13 @@ export default function GetTableData(props) {
   const [persistanceData, setPersistanceData] = useState({});
   const [uniqueTags, setUniqueTags] = useState(['default']);
   const [usageArray, setUsageArray] = useState([1, 2, 3, 4]);
+  const [piedata, setPieData] = useState(null);
 
   const [limit, setLimit] = useState(10);
   const [unit, setUnit] = useState('eth');
   const [appData, setAppData] = useState('');
 
-  function handleSetLimit(Limit, unit) {
+  async function handleSetLimit(Limit, unit) {
     //Get filter tag and in the tage usage change the limit
     let newPersistanceData = persistanceData;
     if (unit == 'eth') {
@@ -43,13 +44,8 @@ export default function GetTableData(props) {
     newPersistanceData[accountNo].usage[filterTag].limit = Limit;
 
     setPersistanceData(newPersistanceData);
-    setStorage(newPersistanceData);
+    await setStorage(newPersistanceData);
   }
-
-  // todo : this is a hack, need to fix this
-  // const [accountNo, setAccountNo] = useState(
-  //   '0x32f2e9ff23d7651beaa893d3a84ba26e7d848ab1',
-  // );
 
   // get data from TableSection.jsx
   const [accountNo, setAccountNo] = useState(props.props);
@@ -150,7 +146,6 @@ export default function GetTableData(props) {
     if (!persistanceData || !apiData) return DATA_local;
     if (persistanceData[accountNo] == undefined) return DATA_local;
     let mainMapping = persistanceData[accountNo].mainMapping;
-    console.log('mainMapping 97:', mainMapping);
     let data = [];
     for (let i = 0; i < apiData.length; i++) {
       let tx = apiData[i];
@@ -178,18 +173,13 @@ export default function GetTableData(props) {
     return data;
   };
 
-  // useEffect(() => {
-  //   if (window.ethereum.selectedAddress) {
-  //     const accountNo = window.ethereum.selectedAddress;
-  //     setAccountNo(accountNo);
-  //     console.log('useeffect log 2:', accountNo);
-  //   }
-  // }, []);
   function handleUniqueTags() {
-    let uT = Object.keys(persistanceData[accountNo].usage);
-    console.log('unique tags :', uT);
-    setUniqueTags(uT);
-    // console.log(persistanceData);
+    try {
+      let uT = Object.keys(persistanceData[accountNo].usage);
+      setUniqueTags(uT);
+    } catch (err) {
+      // wait for the state to be updated
+    }
   }
 
   useEffect(() => {
@@ -197,16 +187,11 @@ export default function GetTableData(props) {
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       });
-      // ensure acccounts is not null or undefined
-      // if (!accounts) {
-      //   return;
-      // }
-      console.log('accounts :', accounts);
+
       setAccountNo(accounts[0]);
 
       // initialize persistent storage
       let storageData = await getStorage();
-      console.log('persistance storage :', storageData);
       setPersistanceData(storageData);
 
       let template = {
@@ -245,7 +230,6 @@ export default function GetTableData(props) {
           if (data && data.message == 'OK') {
             const temp = data.result;
             setAppData(temp);
-            console.log('sachin ka data :', temp);
             console.log('165', storageData2);
             setData(heuristicFilter(storageData2, temp));
           }
@@ -271,8 +255,8 @@ export default function GetTableData(props) {
     setFilterDateRange(dateRange);
   };
 
-  React.useEffect(() => {
-    console.log('data local:', DATA_local);
+  useEffect(() => {
+    // console.log('data local:', DATA_local);
     setData(DATA_local);
 
     setFilterDateRange(dateRange);
@@ -309,56 +293,61 @@ export default function GetTableData(props) {
     });
 
   // todo call when setStorage is called
-  // todo check why uniqueTags is null
   // todo use usage instead of limit (limit called because usage is zero)
   useEffect(() => {
     let dataArray =
       persistanceData[accountNo] && persistanceData[accountNo].usage
         ? Object.values(persistanceData[accountNo].usage).map((item) => {
-            return item.used + item.limit;
+            return item.used;
           })
         : [...Array(uniqueTags.length).fill(10)];
     console.log('data array :', dataArray);
     setUsageArray(dataArray);
     console.log('unique tag', uniqueTags);
-  }, [persistanceData]);
 
-  let piedata = {
-    labels: uniqueTags,
-    datasets: [
-      {
-        label: 'Usage',
-        data: usageArray,
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)',
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(255, 159, 64, 1)',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+    let piedata = {
+      labels: uniqueTags,
+      datasets: [
+        {
+          label: 'Usage',
+          data: usageArray,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    setPieData(piedata);
+  }, [persistanceData, uniqueTags]);
+
+  useEffect(() => {
+    handleUniqueTags();
+  }, [data]);
 
   return (
     <div>
@@ -455,7 +444,7 @@ export default function GetTableData(props) {
                 <div className="col-3">
                   <button
                     className="btn btn-primary m-1 fs-5 fw-bold w-100"
-                    onClick={() => handleSetLimit(limit, unit)}
+                    onClick={async () => await handleSetLimit(limit, unit)}
                   >
                     Set Limit
                   </button>
@@ -562,7 +551,7 @@ export default function GetTableData(props) {
         </table>
       </div>
       <div>
-        {usageArray.length > 0 ? (
+        {usageArray.length > 0 && piedata ? (
           <>
             <h4 className="p-2 mt-3 fw-bold">Spending Breakdown</h4>
             <Doughnut data={piedata} />
