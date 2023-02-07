@@ -6,14 +6,14 @@ import React, {
   ReactNode,
 } from 'react';
 import { Client } from '@xmtp/xmtp-js';
-import { JsonRpcSigner } from 'ethers';
+import { Signer } from 'ethers';
 
 import { WalletContext } from './WalletContext';
 
 type XmtpContextType = [
   {
     client: Client | null;
-    initClient: (wallet: JsonRpcSigner | null) => void;
+    initClient: (wallet: Signer | null) => void;
     loadingConversations: boolean;
     conversations: Map<string, any>;
     convoMessages: Map<string, any>;
@@ -38,21 +38,25 @@ export const XmtpContextProvider = ({ children }: { children: ReactNode }) => {
   const { signer, walletAddress } = useContext(WalletContext);
   const [providerState, setProviderState] = useState(initialValue[0]);
 
-  const initClient = async (wallet: JsonRpcSigner | null) => {
+  const initClient = async (wallet: Signer | null) => {
     if (wallet && !providerState.client) {
-      try {
-        const client = await Client.create(wallet, { env: 'dev' });
-        setProviderState({
-          ...providerState,
-          client,
-        });
-      } catch (e) {
-        console.error(e);
-        setProviderState({
-          ...providerState,
-          client: null,
-        });
-      }
+      // wallet.fingerprint = 5;
+      console.log(wallet);
+      // console.log(signer);
+      // try {
+      const client = await Client.create(wallet, { env: 'dev' });
+      setProviderState({
+        ...providerState,
+        client,
+      });
+      // }
+      // catch (e) {
+      //   console.error(e);
+      //   setProviderState({
+      //     ...providerState,
+      //     client: null,
+      //   });
+      // }
     }
   };
 
