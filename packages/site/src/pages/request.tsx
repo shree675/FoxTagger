@@ -19,6 +19,7 @@ const Home = () => {
   useStreamConversations();
   const [isNewMsg, setIsNewMsg] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  // window.buffer=
 
   const reset = () => {
     setSelectedConvo(null);
