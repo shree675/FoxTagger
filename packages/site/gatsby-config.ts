@@ -17,6 +17,7 @@ const config: GatsbyConfig = {
         display: 'standalone',
       },
     },
+    'gatsby-plugin-postcss',
   ],
 };
 

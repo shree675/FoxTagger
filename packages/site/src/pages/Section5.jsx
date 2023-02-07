@@ -9,15 +9,15 @@ export default function Section5() {
     <div className="" style={{ padding: 10 }}>
       <h4 className="p-2 fw-bold">Tags Limits </h4>
 
-      <div className="col-sm-auto"> {tag} </div>
-      <div className="row">
-        <div className="col-sm-auto"> {value}% </div>
+      <div class="col-sm-auto"> {tag} </div>
+      <div class="row">
+        <div class="col-sm-auto"> {value}% </div>
         <div
-          className="bg-light rounded border col"
+          class="bg-light rounded border col"
           style={{ padding: 0, height: 'fit-content' }}
         >
           <div
-            className="bg-success rounded"
+            class="bg-success rounded"
             style={{ height: 20, width: value + '%' }}
           ></div>
         </div>

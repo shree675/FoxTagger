@@ -3,6 +3,8 @@ import { ThemeProvider } from 'styled-components';
 import { getThemePreference, setLocalStorage } from './utils';
 import { dark, light } from './config/theme';
 import { MetaMaskProvider } from './hooks';
+import { XmtpContextProvider } from './contexts/XmtpContext';
+import { WalletContextProvider } from './contexts/WalletContext';
 
 export type RootProps = {
   children: ReactNode;
@@ -24,9 +26,13 @@ export const Root: FunctionComponent<RootProps> = ({ children }) => {
 
   return (
     <ToggleThemeContext.Provider value={toggleTheme}>
-      <ThemeProvider theme={darkTheme ? dark : light}>
-        <MetaMaskProvider>{children}</MetaMaskProvider>
-      </ThemeProvider>
+      <WalletContextProvider>
+        <XmtpContextProvider>
+          <ThemeProvider theme={darkTheme ? dark : light}>
+            <MetaMaskProvider>{children}</MetaMaskProvider>
+          </ThemeProvider>
+        </XmtpContextProvider>
+      </WalletContextProvider>
     </ToggleThemeContext.Provider>
   );
 };

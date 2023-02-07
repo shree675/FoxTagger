@@ -405,6 +405,7 @@ export default function GetTableData(props) {
           <div className="col-12 text-end">
             <div className="dropdown">
               <button
+                style={{ backgroundColor: 'black' }}
                 className="btn btn-secondary dropdown-toggle"
                 type="button"
                 id="tagsList"
