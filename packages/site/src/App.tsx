@@ -1,7 +1,7 @@
+import { Buffer } from 'buffer';
 import { FunctionComponent, ReactNode, useContext } from 'react';
 import styled from 'styled-components';
 import { Footer, Header } from './components';
-import { Buffer } from 'buffer';
 import { GlobalStyle } from './config/theme';
 import { ToggleThemeContext } from './Root';
 

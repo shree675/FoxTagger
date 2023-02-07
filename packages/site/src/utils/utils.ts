@@ -17,3 +17,47 @@ export const truncate = (str: string, length: number) => {
 
 export const getLatestMessage = (messages: any) =>
   messages?.length ? messages[messages.length - 1] : null;
+
+// request feature functions
+
+// convert eth to wei
+export const convertEthToWei = (eth: string) => {
+  const wei = parseFloat(eth) * 1e18;
+  return wei.toString();
+};
+
+export const sendAmount = async (
+  amount: string,
+  toAddress: string,
+  fromAddress: string,
+) => {
+  const txHash: string = await window.ethereum.request({
+    method: 'eth_sendTransaction',
+    params: [
+      {
+        from: fromAddress,
+        to: toAddress,
+        value: amount,
+      },
+    ],
+  });
+  return txHash;
+};
+
+// confirm the transaction
+export const checkTransactionconfirmation = (txhash) => {
+  const checkTransactionLoop = async () => {
+    const val = await window.ethereum.request({
+      method: 'eth_getTransactionReceipt',
+      params: [txhash],
+    });
+
+    if (val !== null) {
+      return true;
+    }
+
+    return checkTransactionLoop();
+  };
+
+  return checkTransactionLoop();
+};

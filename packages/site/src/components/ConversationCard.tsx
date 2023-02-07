@@ -6,6 +6,14 @@ const ConversationCard = ({
   address,
   latestMessage,
 }: any) => {
+  let message;
+
+  try {
+    message = JSON.parse(latestMessage.content).message;
+  } catch (error) {
+    message = latestMessage.content;
+  }
+
   return (
     <div
       onClick={() => setSelectedConvo(address)}
@@ -16,7 +24,7 @@ const ConversationCard = ({
         <div>
           <b>{shortAddress(address)}</b>
         </div>
-        <div>{latestMessage && truncate(latestMessage.content, 75)}</div>
+        <div>{latestMessage && truncate(message, 75)}</div>
       </div>
     </div>
   );

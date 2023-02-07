@@ -5,7 +5,7 @@ const useSendMessage = (peerAddress: any) => {
   const [providerState] = useContext(XmtpContext);
   const { client } = providerState || {};
 
-  const sendMessage = async (message: any) => {
+  const sendMessage = async (payload: any) => {
     if (!client || !peerAddress) {
       return;
     }
@@ -15,7 +15,8 @@ const useSendMessage = (peerAddress: any) => {
     if (!conversation) {
       return;
     }
-    await conversation.send(message);
+
+    await conversation.send(payload);
   };
 
   return {

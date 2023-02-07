@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from 'react';
 import { Client } from '@xmtp/xmtp-js';
-import { Wallet, JsonRpcSigner } from 'ethers';
+import { JsonRpcSigner } from 'ethers';
 
 import { WalletContext } from './WalletContext';
 
@@ -41,14 +41,11 @@ export const XmtpContextProvider = ({ children }: { children: ReactNode }) => {
   const initClient = async (wallet: JsonRpcSigner | null) => {
     if (wallet && !providerState.client) {
       try {
-        const walletT = Wallet.createRandom();
-        const client = await Client.create(walletT, { env: 'dev' });
-        console.log('HERE');
+        const client = await Client.create(wallet, { env: 'dev' });
         setProviderState({
           ...providerState,
           client,
         });
-        console.log('HERE2');
       } catch (e) {
         console.error(e);
         setProviderState({
