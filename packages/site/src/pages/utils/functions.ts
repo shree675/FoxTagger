@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 export const getPersistentStorage = async () => {
   return await wallet.request({
@@ -24,9 +24,7 @@ export const setPersistentStorage = async (
 };
 
 export const toEth = (wei: BigNumber) => {
-  return `${wei
-    .div(BigNumber.from('1000000000000000000'))
-    .toString()} GoerliETH`;
+  return `${Number(utils.formatEther(wei)).toFixed(18)} GoerliETH`;
 };
 
 export const compact = (hash: string) => {

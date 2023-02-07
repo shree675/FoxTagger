@@ -32,19 +32,34 @@ const Link = styled.a`
   }
 `;
 
-const Button = styled.button`
+// const Button = styled.button`
+//   display: flex;
+//   align-self: flex-start;
+//   align-items: center;
+//   justify-content: center;
+//   margin-top: auto;
+//   ${({ theme }) => theme.mediaQueries.small} {
+//     width: 100%;
+//   }
+// `;
+
+const ButtonText = styled.span`
+  margin-left: 1rem;
+`;
+
+const Button = styled.div`
   display: flex;
   align-self: flex-start;
   align-items: center;
   justify-content: center;
-  margin-top: auto;
-  ${({ theme }) => theme.mediaQueries.small} {
-    width: 100%;
-  }
-`;
-
-const ButtonText = styled.span`
-  margin-left: 1rem;
+  font-size: ${(props) => props.theme.fontSizes.small};
+  border-radius: 20px;
+  border: 1px solid black;
+  background-color: white;
+  color: black;
+  font-weight: bold;
+  padding: 1.2rem;
+  cursor: pointer;
 `;
 
 const ConnectedContainer = styled.div`
@@ -53,10 +68,10 @@ const ConnectedContainer = styled.div`
   align-items: center;
   justify-content: center;
   font-size: ${(props) => props.theme.fontSizes.small};
-  border-radius: ${(props) => props.theme.radii.button};
-  border: 1px solid ${(props) => props.theme.colors.background.inverse};
-  background-color: ${(props) => props.theme.colors.background.inverse};
-  color: ${(props) => props.theme.colors.text.inverse};
+  border-radius: 20px;
+  border: 1px solid black;
+  background-color: white;
+  color: black;
   font-weight: bold;
   padding: 1.2rem;
 `;

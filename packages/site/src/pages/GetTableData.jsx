@@ -5,19 +5,51 @@ import { compact, toEth } from './utils/functions';
 
 import './tableDesign.css';
 import { BigNumber } from 'ethers';
+import { Doughnut } from 'react-chartjs-2';
+
 const convert = {
   wei_eth: (wei) => {
     return toEth(BigNumber.from(wei.toString()));
   },
   eth_wei: (eth) => {
-    return (BigNumber.from(wei) * BigNumber('1000000000000000000')).toString();
+    return (
+      BigNumber.from(eth) * BigNumber.from('1000000000000000000')
+    ).toString();
+  },
+  gwei_wei: (gwei) => {
+    return (BigNumber.from(gwei) * BigNumber.from('1000000000')).toString();
   },
 };
 
 export default function GetTableData(props) {
   const [persistanceData, setPersistanceData] = useState({});
-  const [uniqueTags, setUniqueTags] = useState([]);
+  const [uniqueTags, setUniqueTags] = useState(['default']);
+  const [usageArray, setUsageArray] = useState([1, 2, 3, 4]);
+  const [piedata, setPieData] = useState(null);
+
+  const [limit, setLimit] = useState(10);
+  const [unit, setUnit] = useState('eth');
   const [appData, setAppData] = useState('');
+
+  async function handleSetLimit(Limit, unit) {
+    //Get filter tag and in the tage usage change the limit
+    let newPersistanceData = persistanceData;
+    if (unit == 'eth') {
+      newPersistanceData[accountNo].usage[filterTag].limit =
+        convert.eth_wei(Limit);
+    } else if (unit == 'gwei') {
+      newPersistanceData[accountNo].usage[filterTag].limit =
+        convert.gwei_wei(Limit);
+    }
+    newPersistanceData[accountNo].usage[filterTag].limit = Limit;
+
+    setPersistanceData(newPersistanceData);
+    await setStorage(newPersistanceData);
+  }
+
+  // get data from TableSection.jsx
+  const [accountNo, setAccountNo] = useState(props.props);
+
   const [data, setData] = React.useState([]);
   const [dateRange, setDateRange] = React.useState({
     startDate: new Date('2000-01-01'),
@@ -49,17 +81,28 @@ export default function GetTableData(props) {
   };
 
   const addtag = async (address, tag) => {
-    console.log('add tag');
     let newPersistanceData = await getStorage();
-    let mainMapping = newPersistanceData.mainMapping;
+    let mainMapping = newPersistanceData[accountNo].mainMapping;
     if (!mainMapping) mainMapping = {};
     if (!mainMapping[address]) {
       mainMapping[address] = [];
     }
     if (!mainMapping[address].includes(tag)) {
       mainMapping[address].push(tag);
+
+      //create entire in usage with {limit: '1000000000000000000', used: '999999999999999999', notified: true}
+      let usage = newPersistanceData[accountNo].usage;
+      if (!usage) usage = {};
+      if (!usage[tag]) {
+        usage[tag] = {
+          limit: '1000000000000000000',
+          used: '0',
+          notified: false,
+        };
+      }
     }
     setPersistanceData(newPersistanceData);
+    console.log('newPersistanceData 97:', newPersistanceData);
     await setStorage(newPersistanceData);
     setData(heuristicFilter(newPersistanceData, appData));
   };
@@ -67,7 +110,6 @@ export default function GetTableData(props) {
   const handleAddTag = async (address) => {
     let tag = prompt('Enter tag name');
     if (tag == '' || tag == null) {
-      alert('Tag name cannot be empty');
       return;
     }
     await addtag(address, tag);
@@ -75,13 +117,21 @@ export default function GetTableData(props) {
 
   const removetag = async (address, tag) => {
     let newPersistanceData = await getStorage();
-    let mainMapping = newPersistanceData.mainMapping;
+    let mainMapping = newPersistanceData[accountNo].mainMapping;
     if (!mainMapping) mainMapping = {};
     if (!mainMapping[address]) {
       mainMapping[address] = [];
     }
     if (mainMapping[address].includes(tag)) {
       mainMapping[address] = mainMapping[address].filter((t) => t !== tag);
+
+      let usage = newPersistanceData[accountNo].usage;
+      if (!usage) usage = {};
+      if (usage[tag]) {
+        delete usage[tag];
+
+        setFilterTag('all');
+      }
     }
     setPersistanceData(newPersistanceData);
     await setStorage(newPersistanceData);
@@ -94,128 +144,96 @@ export default function GetTableData(props) {
 
   const heuristicFilter = (persistanceData, apiData) => {
     if (!persistanceData || !apiData) return DATA_local;
-    let mainMapping = persistanceData.mainMapping;
-    console.log('mainMapping 97:', mainMapping);
+    if (persistanceData[accountNo] == undefined) return DATA_local;
+    let mainMapping = persistanceData[accountNo].mainMapping;
     let data = [];
     for (let i = 0; i < apiData.length; i++) {
       let tx = apiData[i];
-      let to = tx.from;
-      let value = tx.value;
-      let tags = [];
+      let to = tx.to;
+      if (to !== props.props && to.startsWith('0x')) {
+        let value = tx.value;
+        let gas = tx.gas;
+        let tags = [];
 
-      // console.log(mainMapping.has(to));
-      // if (mainMapping[to] && mainMapping[to].length > 0) {
-      //   tags = mainMapping[to];
-      // }
-      tags = mainMapping[to] ? mainMapping[to] : [];
-      let date = new Date(tx.timeStamp * 1000).toLocaleDateString();
-      let time = new Date(tx.timeStamp * 1000).toLocaleTimeString();
-      let dateTime = date + ' ' + time;
+        tags = mainMapping[to] ? mainMapping[to] : [];
+        let date = new Date(tx.timeStamp * 1000).toLocaleDateString();
+        let time = new Date(tx.timeStamp * 1000).toLocaleTimeString();
+        let dateTime = date + ' ' + time;
 
-      let row = {
-        address: to,
-        amount: value,
-        tags: tags,
-        date: dateTime,
-      };
-      data.push(row);
+        let row = {
+          address: to,
+          amount: BigNumber.from(value).add(BigNumber.from(gas)).toString(),
+          tags: tags,
+          date: dateTime,
+        };
+        data.push(row);
+      }
     }
 
     return data;
   };
 
+  function handleUniqueTags() {
+    try {
+      let uT = Object.keys(persistanceData[accountNo].usage);
+      setUniqueTags(uT);
+    } catch (err) {
+      // wait for the state to be updated
+    }
+  }
+
   useEffect(() => {
     const getPersistanceStorage = async () => {
-      const accounts = await window.ethereum?.request({
+      const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       });
-      // ensure acccounts is not null or undefined
-      console.log('accounts :', accounts);
-      if (!accounts) {
-        return;
-      }
+
+      setAccountNo(accounts[0]);
 
       // initialize persistent storage
       let storageData = await getStorage();
-      console.log('persistance storage :', storageData);
       setPersistanceData(storageData);
 
       let template = {
-        mainMapping: {
-          '0x71c7656ec7ab88b098defb751b7401b5f6d8976f': [
-            'food2',
-            'entertainment',
-          ],
-          '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
-            'transportation',
-            'food',
-          ],
-          '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
+        abc: 'def',
+        '0x58fbf7339825d9dcb0d37c19cd04485880c0a894': {
+          mainMapping: {
+            '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
+            '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
+              'transportation',
+              'food',
+            ],
+            '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
+          },
+          usage: {
+            todo: {
+              limit: '1000000000000000000',
+              used: '999999999999999999',
+              notified: false,
+            },
+          },
+          latestHash: '',
         },
-        usage: {},
-        latestHash: '',
       };
 
-      let genData = await setStorage(template);
-      console.log('genData :', genData);
+      if (!storageData['abc']) {
+        await setStorage(template);
+      }
 
       let storageData2 = await getStorage();
 
       fetch(
-        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=0x71C7656EC7ab88b098defB751B7401B5f6d8976F&startblock=0&endblock=9999999999&sort=asc&apikey=FFJRFMXZPG2H3K9QEMQ25Z1PZS67CIU8DJ`,
+        `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${props.props}&startblock=0&endblock=9999999999&sort=asc&apikey=5I4X9SEH42B1Z325WBZIFJ1WNCE1VN1IVW`,
       )
         .then((results) => results.json())
         .then((data) => {
           if (data && data.message == 'OK') {
             const temp = data.result;
             setAppData(temp);
-            console.log('sachin ka data :', temp);
+            console.log('165', storageData2);
             setData(heuristicFilter(storageData2, temp));
           }
         });
-
-      // if (!storageData) {
-      //   storageData = {};
-      //   storageData[account] = { mainMapping: {}, usage: {}, latestHash: '' };
-      //   await setStorage(storageData);
-      // } else if (!storageData[account]) {
-      //   // an account already exists so set the same mainMapping for the new account
-      //   let prevAccount = null;
-      //   for (const existingAccount in storageData) {
-      //     if (Object.prototype.hasOwnProperty.call(storageData, existingAccount)) {
-      //       if (existingAccount.startsWith('0x')) {
-      //         prevAccount = existingAccount;
-      //       }
-      //     }
-      //   }
-
-      //   if (prevAccount === null || prevAccount === undefined) {
-      //     console.error(
-      //       'Persistent storage has not been initialized correctly.',
-      //     );
-      //     storageData[account] = { mainMapping: {}, usage: {}, latestHash: '' };
-      //   } else {
-      //     const { mainMapping } = storageData[prevAccount];
-      //     const { usage } = storageData[prevAccount];
-
-      //     for (const tag in usage) {
-      //       if (Object.prototype.hasOwnProperty.call(usage, tag)) {
-      //         usage[tag].limit = 0;
-      //         // used field will be updated later by a cron job
-      //         usage[tag].used = 0;
-      //         usage[tag].notified = false;
-      //       }
-      //     }
-
-      //     storageData[account] = {
-      //       mainMapping,
-      //       usage,
-      //       latestHash: '',
-      //     };
-      //   }
-
-      //   await setStorage(storageData);
-      // }
     };
     getPersistanceStorage();
   }, []);
@@ -237,8 +255,8 @@ export default function GetTableData(props) {
     setFilterDateRange(dateRange);
   };
 
-  React.useEffect(() => {
-    console.log('data local:', DATA_local);
+  useEffect(() => {
+    // console.log('data local:', DATA_local);
     setData(DATA_local);
 
     setFilterDateRange(dateRange);
@@ -274,6 +292,63 @@ export default function GetTableData(props) {
       }
     });
 
+  // todo call when setStorage is called
+  // todo use usage instead of limit (limit called because usage is zero)
+  useEffect(() => {
+    let dataArray =
+      persistanceData[accountNo] && persistanceData[accountNo].usage
+        ? Object.values(persistanceData[accountNo].usage).map((item) => {
+            return item.used;
+          })
+        : [...Array(uniqueTags.length).fill(10)];
+    console.log('data array :', dataArray);
+    setUsageArray(dataArray);
+    console.log('unique tag', uniqueTags);
+
+    let piedata = {
+      labels: uniqueTags,
+      datasets: [
+        {
+          label: 'Usage',
+          data: usageArray,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    setPieData(piedata);
+  }, [persistanceData, uniqueTags]);
+
+  useEffect(() => {
+    handleUniqueTags();
+  }, [data]);
+
   return (
     <div>
       <div className="row gx-1 gy-1">
@@ -306,50 +381,77 @@ export default function GetTableData(props) {
           </div>
         </div>
         <div className="col-lg-6 col-12 text-end">
-          <div className="btn-group">
+          <div className="dropdown">
             <button
-              className={
-                'btn btn-' + (filterTag === 'all' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('all')}
+              className="btn btn-secondary dropdown-toggle"
+              type="button"
+              id="tagsList"
+              data-bs-toggle="dropdown"
+              onClick={() => handleUniqueTags()}
             >
-              All
+              {filterTag === 'all' ? 'All tags' : filterTag}
             </button>
-            <button
-              className={
-                'btn btn-' + (filterTag === 'food' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('food')}
-            >
-              Food
-            </button>
-            <button
-              className={
-                'btn btn-' + (filterTag === 'travel' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('travel')}
-            >
-              Travel
-            </button>
-            <button
-              className={
-                'btn btn-' +
-                (filterTag === 'shopping' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('shopping')}
-            >
-              Shopping
-            </button>
-            <button
-              className={
-                'btn btn-' +
-                (filterTag === 'entertainment' ? 'primary' : 'secondary')
-              }
-              onClick={() => handleFilter('entertainment')}
-            >
-              Entertainment
-            </button>
+            <ul className="dropdown-menu" aria-labelledby="tagsList">
+              <li>
+                <a
+                  className="dropdown-item  fs-4 fw-bold"
+                  href="#"
+                  onClick={() => handleFilter('all')}
+                >
+                  All tags
+                </a>
+              </li>
+              {uniqueTags.map((item) => (
+                <li>
+                  <a
+                    className="dropdown-item  fs-4"
+                    href="#"
+                    onClick={() => handleFilter(item)}
+                  >
+                    {item.charAt(0) + item.slice(1)}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
+          {filterTag !== 'all' ? (
+            <div className="form-group m-1">
+              <div className="row">
+                <div className="col">
+                  <input
+                    type="text"
+                    className="form-control"
+                    onChange={(e) => setLimit(e.target.value)}
+                  />
+                </div>
+                <div className="col-3">
+                  <select
+                    className="fw-bold fs-4 form-select"
+                    aria-label="Select Unit"
+                    onChange={(e) => setUnit(e.target.value)}
+                  >
+                    <option value="wei" className="fs-4 fw-bold">
+                      wei
+                    </option>
+                    <option value="gwei" className="fs-4 fw-bold">
+                      gwei
+                    </option>
+                    <option value="eth" className="fs-4 fw-bold">
+                      eth
+                    </option>
+                  </select>
+                </div>
+                <div className="col-3">
+                  <button
+                    className="btn btn-primary m-1 fs-5 fw-bold w-100"
+                    onClick={async () => await handleSetLimit(limit, unit)}
+                  >
+                    Set Limit
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
       <div className="d-flex justify-content-end">
@@ -423,7 +525,10 @@ export default function GetTableData(props) {
                         <span className="align-middle">{tag}</span>
                         <span
                           className="text-dark fw-bold fs-4 ms-2 align-middle"
-                          onClick={async () => await handleDeleteTag(item.address, tag)}
+                          onClick={async () =>
+                            await handleDeleteTag(item.address, tag)
+                          }
+                          style={{ cursor: 'pointer' }}
                         >
                           <i className="bi bi-x text-light rounded-pill ps-1 pe-1 align-middle"></i>
                         </span>
@@ -434,6 +539,7 @@ export default function GetTableData(props) {
                       onClick={async () => {
                         await handleAddTag(item.address);
                       }}
+                      style={{ cursor: 'pointer' }}
                     >
                       +
                     </span>
@@ -443,6 +549,14 @@ export default function GetTableData(props) {
             ))}
           </tbody>
         </table>
+      </div>
+      <div>
+        {usageArray.length > 0 && piedata ? (
+          <>
+            <h4 className="p-2 mt-3 fw-bold">Spending Breakdown</h4>
+            <Doughnut data={piedata} />
+          </>
+        ) : null}
       </div>
     </div>
   );

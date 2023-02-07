@@ -137,72 +137,40 @@ const ErrorMessage = styled.div`
 const Index = () => {
   const [state, dispatch] = useContext(MetaMaskContext);
   const [account, setAccount] = useState('');
+  const [seed, setSeed] = useState(0);
+
+  const initializeAccount = async () => {
+    const accounts = (await window.ethereum?.request({
+      method: 'eth_requestAccounts',
+    })) as string[];
+    // ensure acccounts is not null or undefined
+    if (!accounts) {
+      return;
+    }
+    setAccount(accounts[0].toLowerCase());
+    window.ethereum.on('accountsChanged', function (_accounts: any) {
+      setAccount(_accounts[0].toLowerCase());
+    });
+
+    // await clearStorage();
+
+    // initialize persistent storage
+    let storage = (await getStorage()) as any;
+    if (!account.startsWith('0x')) {
+      return;
+    }
+    console.log('storage: ', storage);
+    if (!storage?.[account]) {
+      storage = {};
+      storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
+      await setStorage(storage);
+    }
+    setSeed(Math.random());
+  };
 
   useEffect(() => {
-    const initializeAccount = async () => {
-      const accounts = (await window.ethereum?.request({
-        method: 'eth_requestAccounts',
-      })) as string[];
-      // ensure acccounts is not null or undefined
-      if (!accounts) {
-        return;
-      }
-      setAccount(accounts[0].toLowerCase());
-      window.ethereum.on('accountsChanged', function (_accounts: any) {
-        setAccount(_accounts[0].toLowerCase());
-      });
-
-      await clearStorage();
-
-      // initialize persistent storage
-      let storage = (await getStorage()) as any;
-      console.log('storage: ', storage);
-      if (!storage) {
-        storage = {};
-        storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
-        await setStorage(storage);
-      } else if (!storage[account]) {
-        // an account already exists so set the same mainMapping for the new account
-
-        let prevAccount = null;
-        for (const existingAccount in storage) {
-          if (Object.prototype.hasOwnProperty.call(storage, existingAccount)) {
-            if (existingAccount.startsWith('0x')) {
-              prevAccount = existingAccount;
-            }
-          }
-        }
-
-        if (prevAccount === null || prevAccount === undefined) {
-          console.error(
-            'Persistent storage has not been initialized correctly.',
-          );
-          storage[account] = { mainMapping: {}, usage: {}, latestHash: '' };
-        } else {
-          const { mainMapping } = storage[prevAccount];
-          const { usage } = storage[prevAccount];
-
-          for (const tag in usage) {
-            if (Object.prototype.hasOwnProperty.call(usage, tag)) {
-              usage[tag].limit = 0;
-              // used field will be updated later by a cron job
-              usage[tag].used = 0;
-              usage[tag].notified = false;
-            }
-          }
-
-          storage[account] = {
-            mainMapping,
-            usage,
-            latestHash: '',
-          };
-        }
-
-        await setStorage(storage);
-      }
-    };
     initializeAccount();
-  }, [account]);
+  }, [account, state.installedSnap]);
 
   const handleConnectClick = async () => {
     try {
@@ -213,6 +181,7 @@ const Index = () => {
         type: MetamaskActions.SetInstalled,
         payload: installedSnap,
       });
+      await initializeAccount();
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -234,22 +203,23 @@ const Index = () => {
         <div className="d-flex flex-column p-0 m-0">
           <div className="container-fluid h-100">
             <div className="row h-100">
-              <Section1 />
-              <div className="section2 col-12">
-                <Section3 />
+              <div className="col-lg-9">
+                <Section1 key={seed} />
               </div>
-              <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
-                <Section4 />
-              </div>
-              <div className="section3 align-items-center justify-content-center col-lg-4 col-md-6 col-12">
-                <Section5 />
+              <div className="col-lg-3">
+                <div className="section3 align-items-center justify-content-center">
+                  <Section4 />
+                </div>
+                <div className="section3 align-items-center justify-content-center">
+                  <Section5 />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </Container1>
 
-      <Container>
+      {/* <Container>
         <Heading>
           Welcome to <Span>template-snap</Span>
         </Heading>
@@ -324,7 +294,6 @@ const Index = () => {
               !shouldDisplayReconnectButton(state.installedSnap)
             }
           />
-          {/* <Container>hi</Container> */}
           <Notice>
             <p>
               Please note that the <b>snap.manifest.json</b> and{' '}
@@ -334,7 +303,7 @@ const Index = () => {
             </p>
           </Notice>
         </CardContainer>
-      </Container>
+      </Container> */}
     </Body>
   );
 };

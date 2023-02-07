@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { compact, setPersistentStorage } from './utils/functions';
-import { LIMIT_ALERT_FOOTER, LIMIT_ALERT_HEADER } from './utils/constants';
+import { LIMIT_ALERT_HEADER } from './utils/constants';
 
 export const checkLimits = async (account: string, completeStorage: any) => {
   const storage = completeStorage[account];
@@ -37,11 +37,14 @@ export const checkLimits = async (account: string, completeStorage: any) => {
     completeStorage[account] = storage;
     await setPersistentStorage(completeStorage);
 
-    let message = `${LIMIT_ALERT_HEADER + compact(account)}:\n`;
-    for (const tag of tags) {
-      message += `${tag},\n`;
-    }
-    message += LIMIT_ALERT_FOOTER;
+    // let message = `${LIMIT_ALERT_HEADER + compact(account)}:\n`;
+    const message = `${LIMIT_ALERT_HEADER + tags.length} tags on ${compact(
+      account,
+    )}`;
+    // for (const tag of tags) {
+    //   message += `${tag},\n`;
+    // }
+    // message += LIMIT_ALERT_FOOTER;
 
     return message;
   }
@@ -84,14 +87,13 @@ export const getSummary = async (account: string, completeStorage: any) => {
   if (hasTag) {
     storage.usage = newUsage;
     completeStorage[account] = storage;
-    await setPersistentStorage(storage);
+    await setPersistentStorage(completeStorage);
   }
 
   return exceeded;
 };
 
 export const updateAmount = async (account: string, completeStorage: any) => {
-  // TODO: do not expose API key
   const response = await fetch(
     `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=1G563FEP4GAUAF4YUXJUBU363NB984HCWJ`,
   );
