@@ -5,6 +5,8 @@ import { compact, toEth } from './utils/functions';
 
 import './tableDesign.css';
 import { BigNumber } from 'ethers';
+import { Doughnut } from 'react-chartjs-2';
+
 const convert = {
   wei_eth: (wei) => {
     return toEth(BigNumber.from(wei.toString()));
@@ -21,7 +23,9 @@ const convert = {
 
 export default function GetTableData(props) {
   const [persistanceData, setPersistanceData] = useState({});
-  const [uniqueTags, setUniqueTags] = useState([]);
+  const [uniqueTags, setUniqueTags] = useState(['default']);
+  const [usageArray, setUsageArray] = useState([1, 2, 3, 4]);
+
   const [limit, setLimit] = useState(10);
   const [unit, setUnit] = useState('eth');
   const [appData, setAppData] = useState('');
@@ -184,9 +188,8 @@ export default function GetTableData(props) {
   function handleUniqueTags() {
     let uT = Object.keys(persistanceData[accountNo].usage);
     console.log('unique tags :', uT);
-
-    // let uT = ['food', 'travel', 'entertainment'];
     setUniqueTags(uT);
+    // console.log(persistanceData);
   }
 
   useEffect(() => {
@@ -222,25 +225,6 @@ export default function GetTableData(props) {
               limit: '1000000000000000000',
               used: '999999999999999999',
               notified: false,
-            },
-          },
-          latestHash: '',
-        },
-
-        '0x32f2e9ff23d7651beaa893d3a84ba26e7d848ab1': {
-          mainMapping: {
-            '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
-            '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
-              'transportation',
-              'food',
-            ],
-            '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
-          },
-          usage: {
-            todo: {
-              limit: '1000000000000000000',
-              used: '999999999999999999',
-              notified: true,
             },
           },
           latestHash: '',
@@ -324,7 +308,57 @@ export default function GetTableData(props) {
       }
     });
 
-  //Set the unique tags to keys of usage key of persistance storage
+  // todo call when setStorage is called
+  // todo check why uniqueTags is null
+  // todo use usage instead of limit (limit called because usage is zero)
+  useEffect(() => {
+    let dataArray =
+      persistanceData[accountNo] && persistanceData[accountNo].usage
+        ? Object.values(persistanceData[accountNo].usage).map((item) => {
+            return item.used + item.limit;
+          })
+        : [...Array(uniqueTags.length).fill(10)];
+    console.log('data array :', dataArray);
+    setUsageArray(dataArray);
+    console.log('unique tag', uniqueTags);
+  }, [persistanceData]);
+
+  let piedata = {
+    labels: uniqueTags,
+    datasets: [
+      {
+        label: 'Usage',
+        data: usageArray,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(255, 159, 64, 0.2)',
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(255, 159, 64, 1)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
 
   return (
     <div>
@@ -385,7 +419,7 @@ export default function GetTableData(props) {
                     href="#"
                     onClick={() => handleFilter(item)}
                   >
-                    {item.charAt(0).toUpperCase() + item.slice(1)}
+                    {item.charAt(0) + item.slice(1)}
                   </a>
                 </li>
               ))}
@@ -526,6 +560,14 @@ export default function GetTableData(props) {
             ))}
           </tbody>
         </table>
+      </div>
+      <div>
+        {usageArray.length > 0 ? (
+          <>
+            <h4 className="p-2 mt-3 fw-bold">Spending Breakdown</h4>
+            <Doughnut data={piedata} />
+          </>
+        ) : null}
       </div>
     </div>
   );
