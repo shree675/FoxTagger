@@ -95,7 +95,7 @@ export const getSummary = async (account: string, completeStorage: any) => {
 
 export const updateAmount = async (account: string, completeStorage: any) => {
   const response = await fetch(
-    `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=1G563FEP4GAUAF4YUXJUBU363NB984HCWJ`,
+    `https://api-goerli.etherscan.io/api?module=account&action=txlist&address=${account}&startblock=0&endblock=9999999999&sort=asc&apikey=UQUAAVHP952XT8JHMTIPDAHUJYYDVJPUGK`,
   );
   const result = await response.json();
 
