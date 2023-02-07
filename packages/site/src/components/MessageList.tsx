@@ -10,7 +10,7 @@ const MessageList = ({ isNewMsg, convoMessages, selectedConvo }: any) => {
       <div className="mt-auto">
         {!isNewMsg &&
           convoMessages.map((msg: any) => {
-            return <MessageCard key={msg.id} msg={msg} />;
+            return <MessageCard key={`${msg.id}_${Date.now()}`} msg={msg} />;
           })}
       </div>
     </div>

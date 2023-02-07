@@ -16,26 +16,52 @@ const MessageCard = ({ msg }: any) => {
   const [paidStatus, setPaidStatus] = useState(false);
 
   const pay = async () => {
+    console.log(message);
+
     try {
       const txHash = await sendAmount(
         convertEthToWei(message),
         msg.senderAddress,
         myAddress || '',
       );
-      const storage = {};
-      storage[id] = txHash;
+      let storage = await getStorage();
+
+      if (!storage?.[myAddress || 'empty']) {
+        storage = {};
+      }
+
+      if (myAddress === null) {
+        return;
+      }
+
+      const idToHash = {};
+      idToHash[id] = txHash;
+
+      storage[myAddress] = { idToHash };
+
       await setStorage(storage);
+      console.log('pay');
+
       const txHashes = await getStorage();
       console.log('txHashes', txHashes);
     } catch (error) {
       console.log('error', error);
     }
-    console.log('pay');
   };
 
   const checkPayment = async () => {
-    const txHashes = await getStorage();
-    const txHash = txHashes[id];
+    const storage = await getStorage();
+    if (storage === null) {
+      return;
+    }
+    console.log('storage', storage);
+
+    if (myAddress === null) {
+      return;
+    }
+
+    const txHash = storage[myAddress]?.idToHash[id];
+
     if (!txHash) {
       return;
     }
@@ -57,12 +83,10 @@ const MessageCard = ({ msg }: any) => {
           <div>
             <b>{shortAddress(msg.senderAddress)}</b>
           </div>
-          {msg.senderAddress !== myAddress && (
-            <div>
-              {message}
-              {!isMe && !paidStatus && <button onClick={pay}>Pay</button>}
-            </div>
-          )}
+          <div>
+            {message}
+            {!isMe && !paidStatus && <button onClick={pay}>Pay</button>}
+          </div>
         </div>
       </div>
     </>
