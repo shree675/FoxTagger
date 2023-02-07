@@ -10,10 +10,12 @@ const convert = {
     return toEth(BigNumber.from(wei.toString()));
   },
   eth_wei: (eth) => {
-    return (BigNumber.from(eth) * BigNumber('1000000000000000000')).toString();
+    return (
+      BigNumber.from(eth) * BigNumber.from('1000000000000000000')
+    ).toString();
   },
   gwei_wei: (gwei) => {
-    return (BigNumber.from(gwei) * BigNumber('1000000000')).toString();
+    return (BigNumber.from(gwei) * BigNumber.from('1000000000')).toString();
   },
 };
 
@@ -28,11 +30,13 @@ export default function GetTableData(props) {
     //Get filter tag and in the tage usage change the limit
     let newPersistanceData = persistanceData;
     if (unit == 'eth') {
-      newPersistanceData[accountNo].usage[filterTag] = convert.eth_wei(Limit);
+      newPersistanceData[accountNo].usage[filterTag].limit =
+        convert.eth_wei(Limit);
     } else if (unit == 'gwei') {
-      newPersistanceData[accountNo].usage[filterTag] = convert.gwei_wei(Limit);
+      newPersistanceData[accountNo].usage[filterTag].limit =
+        convert.gwei_wei(Limit);
     }
-    newPersistanceData[accountNo].usage[filterTag] = Limit;
+    newPersistanceData[accountNo].usage[filterTag].limit = Limit;
 
     setPersistanceData(newPersistanceData);
     setStorage(newPersistanceData);
@@ -85,8 +89,20 @@ export default function GetTableData(props) {
     }
     if (!mainMapping[address].includes(tag)) {
       mainMapping[address].push(tag);
+
+      //create entire in usage with {limit: '1000000000000000000', used: '999999999999999999', notified: true}
+      let usage = newPersistanceData[accountNo].usage;
+      if (!usage) usage = {};
+      if (!usage[tag]) {
+        usage[tag] = {
+          limit: '1000000000000000000',
+          used: '0',
+          notified: false,
+        };
+      }
     }
     setPersistanceData(newPersistanceData);
+    console.log('newPersistanceData 97:', newPersistanceData);
     await setStorage(newPersistanceData);
     setData(heuristicFilter(newPersistanceData, appData));
   };
@@ -108,6 +124,14 @@ export default function GetTableData(props) {
     }
     if (mainMapping[address].includes(tag)) {
       mainMapping[address] = mainMapping[address].filter((t) => t !== tag);
+
+      let usage = newPersistanceData[accountNo].usage;
+      if (!usage) usage = {};
+      if (usage[tag]) {
+        delete usage[tag];
+
+        setFilterTag('all');
+      }
     }
     setPersistanceData(newPersistanceData);
     await setStorage(newPersistanceData);
@@ -158,8 +182,10 @@ export default function GetTableData(props) {
   //   }
   // }, []);
   function handleUniqueTags() {
-    // let uT = Object.keys(persistanceData[accountNo].usage);
-    let uT = ['food', 'travel', 'entertainment'];
+    let uT = Object.keys(persistanceData[accountNo].usage);
+    console.log('unique tags :', uT);
+
+    // let uT = ['food', 'travel', 'entertainment'];
     setUniqueTags(uT);
   }
 
