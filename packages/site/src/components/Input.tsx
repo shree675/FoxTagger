@@ -21,7 +21,7 @@ const Input = ({
     value={value}
     onChange={(e) => setNewValue(e.target.value)}
     onBlur={onInputBlur}
-    className="text-input"
+    className="border-lg bg-zinc-200 text-black rounded-md p-4"
     placeholder={placeholder}
     type={type}
     min={min}

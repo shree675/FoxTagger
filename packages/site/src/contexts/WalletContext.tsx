@@ -40,7 +40,6 @@ export const WalletContextProvider = ({
     const instance = await web3Modal.connect();
     const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
     const newSigner = web3Provider.getSigner();
-    console.log(newSigner);
     setSigner(newSigner);
     setWalletAddress(await newSigner.getAddress());
 

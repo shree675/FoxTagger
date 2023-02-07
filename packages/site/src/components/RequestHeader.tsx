@@ -9,13 +9,15 @@ const Header = () => {
   const [providerState] = useContext(XmtpContext);
 
   return (
-    <div className="header flex align-center justify-between">
+    <div className="text-center w-full">
       {walletAddress ? (
-        <div className="flex align-center header-mobile">
-          <h3>{shortAddress(walletAddress)}</h3>
+        <div>
+          <h3 className="text-lg font-bold mx-auto">
+            {shortAddress(walletAddress)}
+          </h3>
           {!providerState.client && (
             <button
-              className="btn"
+              className="p-4 bg-orange-500 rounded-md text-white my-3 mx-auto shadow-lg block"
               onClick={() => providerState.initClient(signer)}
             >
               Connect to XMTP
@@ -23,7 +25,10 @@ const Header = () => {
           )}
         </div>
       ) : (
-        <button className="btn" onClick={connectWallet}>
+        <button
+          className="p-4 bg-blue-400 rounded-md text-white my-3 mx-auto shadow-lg"
+          onClick={connectWallet}
+        >
           {!window.ethereum?.isMetaMask ? 'Install MetaMask' : 'Connect wallet'}
         </button>
       )}

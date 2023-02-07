@@ -15,7 +15,7 @@ const AddressInput = ({
 }) => {
   const [newAddress, setNewAddress] = useState('');
   return (
-    <div className={`flex flex-dir-col ${isNewMsg ? 'flex-1' : ''}`}>
+    <div className="flex">
       {isNewMsg ? (
         <>
           <Input
@@ -29,7 +29,9 @@ const AddressInput = ({
           )}
         </>
       ) : (
-        <b>{shortAddress(selectedConvo)}</b>
+        <b className=" text-3xl mt-10 align-middle">
+          {shortAddress(selectedConvo)}
+        </b>
       )}
     </div>
   );

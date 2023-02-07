@@ -56,25 +56,22 @@ const Home = () => {
   };
 
   return (
-    <div className="flex align-center flex-dir-col home">
+    <>
       <Header />
       {client && (
-        <div className="card">
+        <div className="w-3/4 mx-auto">
           {!selectedConvo && !isNewMsg ? (
             <>
               <CardHeader setIsNewMsg={setIsNewMsg} />
-              <div className="conversation-list">
-                <ConversationList
-                  convoMessages={convoMessages}
-                  setSelectedConvo={setSelectedConvo}
-                />
-              </div>
+              <ConversationList
+                convoMessages={convoMessages}
+                setSelectedConvo={setSelectedConvo}
+              />
             </>
           ) : (
             <>
-              <div className="conversation-header align-center flex justify-start">
+              <div className="flex justify-start mb-4">
                 <BackButton reset={reset} />
-                <div className="identicon"></div>
                 <AddressInput
                   isNewMsg={isNewMsg}
                   onInputBlur={onInputBlur}
@@ -97,7 +94,7 @@ const Home = () => {
           )}
         </div>
       )}
-    </div>
+    </>
   );
 };
 

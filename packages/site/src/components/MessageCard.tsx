@@ -54,7 +54,6 @@ const MessageCard = ({ msg }: any) => {
     if (storage === null) {
       return;
     }
-    console.log('storage', storage);
 
     if (myAddress === null) {
       return;
@@ -77,15 +76,21 @@ const MessageCard = ({ msg }: any) => {
 
   return (
     <>
-      <div className="msg-header flex justify-start">
-        <div className="identicon" />
-        <div className="convo-info align-start flex-dir-col flex justify-start">
-          <div>
-            <b>{shortAddress(msg.senderAddress)}</b>
-          </div>
-          <div>
-            {message}
-            {!isMe && !paidStatus && <button onClick={pay}>Pay</button>}
+      <div className="flex justify-start">
+        <div className="align-start flex justify-start w-full">
+          <div className="justify-between bg-orange-400 w-full my-3 p-4 rounded-lg">
+            <b className="text-2xl mr-3">{shortAddress(msg.senderAddress)}</b>
+            <div className="text-2xl flex justify-between">
+              {message}
+              {!isMe && !paidStatus && (
+                <button
+                  className="rounded-md px-3 py-2 bg-purple-500 text-white"
+                  onClick={pay}
+                >
+                  Pay
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

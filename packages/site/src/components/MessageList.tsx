@@ -7,7 +7,7 @@ const MessageList = ({ isNewMsg, convoMessages, selectedConvo }: any) => {
 
   return (
     <div className="msgs-container flex flex-dir-col">
-      <div className="mt-auto">
+      <div className="mt-auto w-full">
         {!isNewMsg &&
           convoMessages.map((msg: any) => {
             return <MessageCard key={`${msg.id}_${Date.now()}`} msg={msg} />;

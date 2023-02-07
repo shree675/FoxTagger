@@ -16,16 +16,11 @@ const ConversationCard = ({
 
   return (
     <div
+      className="border-sm rounded-lg p-4 border-black shadow-sm bg-gray-200 my-4"
       onClick={() => setSelectedConvo(address)}
-      className="conversation-header flex justify-start"
     >
-      <div className="identicon" />
-      <div className="flex convo-info align-start flex-dir-col justify-start">
-        <div>
-          <b>{shortAddress(address)}</b>
-        </div>
-        <div>{latestMessage && truncate(message, 75)}</div>
-      </div>
+      <div className="text-3xl font-bold">{shortAddress(address)}</div>
+      <div className="text-2xl">{latestMessage && truncate(message, 75)}</div>
     </div>
   );
 };

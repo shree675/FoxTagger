@@ -12,7 +12,6 @@ const HeaderWrapper = styled.header`
   justify-content: space-between;
   align-items: center;
   padding: 2.4rem;
-  border-bottom: 1px solid ${(props) => props.theme.colors.border.default};
   background-color: ${(props) => props.theme.colors.background.default};
   color: ${(props) => props.theme.colors.text.default};
 `;
