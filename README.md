@@ -1,29 +1,15 @@
 # FoxTagger
 
-This repository demonstrates how to develop a snap with TypeScript. For detailed instructions, see [the MetaMask documentation](https://docs.metamask.io/guide/snaps.html#serving-a-snap-to-your-local-environment).
+## About Project
+FoxTagger is a Metamask snaps extension that facilitates the mapping of addresses with user defined tags to help users keep their expenditure in check by alerting and displaying usage analytics.
 
-MetaMask Snaps is a system that allows anyone to safely expand the capabilities of MetaMask. A _snap_ is a program that we run in an isolated environment that can customize the wallet experience.
-
-## Snaps is pre-release software
-
-To interact with (your) Snaps, you will need to install [MetaMask Flask](https://metamask.io/flask/), a canary distribution for developers that provides access to upcoming features.
+## Motivation
+Since cryptocurrency usage through Metamask is expected to increase many-fold in the coming years, it is important to make the users more mindful about their Ethereum chain transactions by keeping track of their expenditure through tagging and organization based on tags. Hence, this app provides exactly that, a platform where the users can check the 
 
 ## Getting Started
 
 ```shell
 yarn install && yarn start
-```
-
-Before committing, run the following:
-
-```shell
-yarn prep
-```
-
-Run the below command if there are linting errors/warnings in the above output:
-
-```shell
-npx prettier --write .
 ```
 
 ### Releasing & Publishing
