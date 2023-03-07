@@ -9,7 +9,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "ES2017",
-    "noImplicitAny": false,
+    "noImplicitAny": false
   },
   "exclude": ["**/__snapshots__/**", "**/test/**", "**/*.test.ts"]
 }

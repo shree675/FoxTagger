@@ -200,50 +200,6 @@ export default function GetTableData(props) {
       let storageData = await getStorage();
       setPersistanceData(storageData);
 
-      let template = {
-        abc: 'def',
-        '0x58fbf7339825d9dcb0d37c19cd04485880c0a894': {
-          mainMapping: {
-            '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
-            '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
-              'transportation',
-              'food',
-            ],
-            '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
-          },
-          usage: {
-            todo: {
-              limit: '1000000000000000000',
-              used: '999999999999999999',
-              notified: false,
-            },
-          },
-          latestHash: '',
-        },
-        '0x32f2e9ff23d7651beaa893d3a84ba26e7d848ab1': {
-          mainMapping: {
-            '0xd2ad654a5d7d42535e31c975b67274fa7687fddd': ['todo'],
-            '0xd3c5967d94d79f17bdc493401c33f7e8897c5f81': [
-              'transportation',
-              'food',
-            ],
-            '0x8ced5ad0d8da4ec211c17355ed3dbfec4cf0e5b9': ['food'],
-          },
-          usage: {
-            todo: {
-              limit: '1000000000000000000',
-              used: '0',
-              notified: false,
-            },
-          },
-          latestHash: '',
-        },
-      };
-
-      if (!storageData['abc']) {
-        await setStorage(template);
-      }
-
       let storageData2 = await getStorage();
 
       fetch(
