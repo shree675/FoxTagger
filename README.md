@@ -3,7 +3,8 @@
 Team ID: 57
 
 ## About Project
-FoxTagger is a Metamask snaps extension that facilitates the mapping of addresses with user defined tags to help users keep their expenditure in check by alerting and displaying usage analytics.
+FoxTagger is a Metamask snaps extension that facilitates the mapping of addresses with user defined tags to help users keep their expenditure in check by alerting and displaying usage analytics.  
+It also hosts a *request amount* feature that sends notifications to the other user.
 
 ## Motivation
 Since cryptocurrency usage through Metamask is expected to increase many-fold in the coming years, it is important to make the users more mindful about their Ethereum chain transactions by keeping track of their expenditure through tagging and organization based on tags. Hence, this app provides exactly that, a platform where the users can check their expenditure and accordingly reflect upon it.
@@ -20,9 +21,11 @@ yarn install && yarn start
 * Open the web app and connect the wallet.
 * The app is now ready for use.
 
+The request amount feature can be accessed at https://localhost:8000/request.
+
 ## Features of Snaps Being Used
 * Persistence storage
-* Notifiactions
+* Notifications
 * Cron jobs
 * Transaction insights
 
