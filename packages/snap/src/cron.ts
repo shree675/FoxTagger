@@ -136,14 +136,14 @@ export const updateAmount = async (account: string, completeStorage: any) => {
           );
           const value = BigNumber.from(transaction.value);
           const total = gas.add(value);
-          if (prevHash !== latestHash) {
-            completeStorage[account].usage[tag].used = BigNumber.from(
-              completeStorage[account].usage[tag].used,
-            )
+          if (prevHash === latestHash) {
+            completeStorage[account].usage[tag].used = BigNumber.from('0')
               .add(total)
               .toString();
           } else {
-            completeStorage[account].usage[tag].used = BigNumber.from('0')
+            completeStorage[account].usage[tag].used = BigNumber.from(
+              completeStorage[account].usage[tag].used,
+            )
               .add(total)
               .toString();
           }

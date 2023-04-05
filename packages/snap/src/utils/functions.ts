@@ -1,25 +1,25 @@
 import { BigNumber } from 'ethers';
 
-export const getPersistentStorage = async () => {
-  return await wallet.request({
+export const getPersistentStorage: any = async () => {
+  return await snap.request({
     method: 'snap_manageState',
-    params: ['get'],
+    params: { operation: 'get' },
   });
 };
 
 export const clearPersistentStorage = async () => {
-  await wallet.request({
+  await snap.request({
     method: 'snap_manageState',
-    params: ['clear'],
+    params: { operation: 'clear' },
   });
 };
 
 export const setPersistentStorage = async (
   data: Record<string, unknown> | void,
 ) => {
-  await wallet.request({
+  await snap.request({
     method: 'snap_manageState',
-    params: ['update', data],
+    params: { operation: 'update', newState: data },
   });
 };
 

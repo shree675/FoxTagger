@@ -23,16 +23,10 @@ export const connectSnap = async (
   params: Record<'version' | string, unknown> = {},
 ) => {
   await window.ethereum.request({
-    method: 'wallet_enable',
-    params: [
-      {
-        wallet_snap: {
-          [snapId]: {
-            ...params,
-          },
-        },
-      },
-    ],
+    method: 'wallet_requestSnaps',
+    params: {
+      [snapId]: params,
+    },
   });
 };
 
@@ -64,12 +58,12 @@ export const getSnap = async (version?: string): Promise<Snap | undefined> => {
 export const getStorage = async () => {
   return await window.ethereum.request({
     method: 'wallet_invokeSnap',
-    params: [
-      defaultSnapOrigin,
-      {
+    params: {
+      snapId: defaultSnapOrigin,
+      request: {
         method: 'getPersistentStorage',
       },
-    ],
+    },
   });
 };
 
@@ -81,13 +75,13 @@ export const getStorage = async () => {
 export const setStorage = async (data: Record<string, unknown> | void) => {
   await window.ethereum.request({
     method: 'wallet_invokeSnap',
-    params: [
-      defaultSnapOrigin,
-      {
+    params: {
+      snapId: defaultSnapOrigin,
+      request: {
         method: 'setPersistentStorage',
         params: data,
       },
-    ],
+    },
   });
 };
 
@@ -97,24 +91,24 @@ export const setStorage = async (data: Record<string, unknown> | void) => {
 export const clearStorage = async () => {
   return await window.ethereum.request({
     method: 'wallet_invokeSnap',
-    params: [
-      defaultSnapOrigin,
-      {
+    params: {
+      snapId: defaultSnapOrigin,
+      request: {
         method: 'clearPersistentStorage',
       },
-    ],
+    },
   });
 };
 
 export const notify = async () => {
   return await window.ethereum.request({
     method: 'wallet_invokeSnap',
-    params: [
-      defaultSnapOrigin,
-      {
+    params: {
+      snapId: defaultSnapOrigin,
+      request: {
         method: 'notify',
       },
-    ],
+    },
   });
 };
 

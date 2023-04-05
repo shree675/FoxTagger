@@ -1,4 +1,5 @@
 import { BigNumber, FixedNumber } from 'ethers';
+import { panel, heading, text } from '@metamask/snaps-ui';
 import { getPersistentStorage, toEth } from './utils/functions';
 import {
   NO_TAG_MESSAGE,
@@ -25,7 +26,7 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
   const tagList = storage.mainMapping[toAddress];
   if (!tagList?.length) {
     return {
-      Tag: NO_TAG_MESSAGE,
+      content: panel([heading('Tag'), text(NO_TAG_MESSAGE)]),
     };
   }
 
@@ -68,16 +69,38 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
     }
   }
 
+  // if (alerts === '') {
+  //   return {
+  //     Tag: tags,
+  //     Usage: usageMsg + FOOTER_NOTE,
+  //   };
+  // }
+
+  // return {
+  //   Tag: tags,
+  //   Usage: usageMsg + FOOTER_NOTE,
+  //   Alerts: alerts,
+  // };
+
   if (alerts === '') {
     return {
-      Tag: tags,
-      Usage: usageMsg + FOOTER_NOTE,
+      content: panel([
+        heading('Tag'),
+        text(tags),
+        heading('Usage'),
+        text(usageMsg + FOOTER_NOTE),
+      ]),
     };
   }
 
   return {
-    Tag: tags,
-    Usage: usageMsg + FOOTER_NOTE,
-    Alerts: alerts,
+    content: panel([
+      heading('Tag'),
+      text(tags),
+      heading('Usage'),
+      text(usageMsg + FOOTER_NOTE),
+      heading('Alerts'),
+      text(alerts),
+    ]),
   };
 };

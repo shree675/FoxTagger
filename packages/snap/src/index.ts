@@ -2,7 +2,7 @@ import {
   OnRpcRequestHandler,
   OnTransactionHandler,
   OnCronjobHandler,
-} from '@metamask/snap-types';
+} from '@metamask/snaps-types';
 import { checkLimits, getSummary, updateAmount } from './cron';
 import { getDetails } from './transaction';
 import { SUMMARY_EXCEEDED, SUMMARY_SAFE_FOOTER } from './utils/constants';
@@ -21,14 +21,12 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
   switch (request.method) {
     case 'notify':
       // for debugging
-      return await wallet.request({
+      return await snap.request({
         method: 'snap_notify',
-        params: [
-          {
-            type: 'inApp',
-            message: `He\nllo,\r\nwo<br />rld!`,
-          },
-        ],
+        params: {
+          type: 'inApp',
+          message: `He\nllo,\r\nwo<br />rld!`,
+        },
       });
     case 'getPersistentStorage':
       return await getPersistentStorage();
@@ -38,9 +36,9 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
       );
       return null;
     case 'clearPersistentStorage':
-      await wallet.request({
+      await snap.request({
         method: 'snap_manageState',
-        params: ['clear'],
+        params: { operation: 'clear' },
       });
       return null;
 
@@ -52,9 +50,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
 export const onTransaction: OnTransactionHandler = async ({ transaction }) => {
   const insights = await getDetails(transaction);
 
-  return {
-    insights,
-  };
+  return insights;
 };
 
 export const onCronjob: OnCronjobHandler = async ({ request }) => {
@@ -77,32 +73,25 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
       }
 
       let message = '';
-      // let exceededAccounts = '';
       let num = 0;
-      // if (accounts.length > 0) {
-      //   message = SUMMARY_HEADER;
-      // }
 
       for (const account of accounts) {
         const exceeded = await getSummary(account, completeStorage);
 
         if (exceeded) {
-          // exceededAccounts += `${compact(account)}, `;
           num += 1;
         }
       }
 
-      // if (exceededAccounts.length > 0) {
       if (num > 0) {
         message += `${SUMMARY_EXCEEDED + num} accounts`;
       } else {
         message += SUMMARY_SAFE_FOOTER;
       }
-      // message += SUMMARY_FOOTER;
       message = message.substring(0, 49);
 
       if (message !== '') {
-        await wallet.request({
+        await snap.request({
           method: 'snap_notify',
           params: [
             {
@@ -138,7 +127,7 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
         if (message !== null && message !== undefined) {
           message = message.substring(0, 49);
 
-          await wallet.request({
+          await snap.request({
             method: 'snap_notify',
             params: [
               {
