@@ -37,14 +37,9 @@ export const checkLimits = async (account: string, completeStorage: any) => {
     completeStorage[account] = storage;
     await setPersistentStorage(completeStorage);
 
-    // let message = `${LIMIT_ALERT_HEADER + compact(account)}:\n`;
     const message = `${LIMIT_ALERT_HEADER + tags.length} tags on ${compact(
       account,
     )}`;
-    // for (const tag of tags) {
-    //   message += `${tag},\n`;
-    // }
-    // message += LIMIT_ALERT_FOOTER;
 
     return message;
   }

@@ -69,26 +69,14 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
     }
   }
 
-  // if (alerts === '') {
-  //   return {
-  //     Tag: tags,
-  //     Usage: usageMsg + FOOTER_NOTE,
-  //   };
-  // }
-
-  // return {
-  //   Tag: tags,
-  //   Usage: usageMsg + FOOTER_NOTE,
-  //   Alerts: alerts,
-  // };
-
   if (alerts === '') {
     return {
       content: panel([
         heading('Tag'),
         text(tags),
         heading('Usage'),
-        text(usageMsg + FOOTER_NOTE),
+        text(usageMsg),
+        text(FOOTER_NOTE),
       ]),
     };
   }
@@ -98,7 +86,8 @@ export const getDetails = async (transaction: Record<string, unknown>) => {
       heading('Tag'),
       text(tags),
       heading('Usage'),
-      text(usageMsg + FOOTER_NOTE),
+      text(usageMsg),
+      text(FOOTER_NOTE),
       heading('Alerts'),
       text(alerts),
     ]),
