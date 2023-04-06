@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import { connectSnap, getThemePreference, getSnap } from '../utils';
-import { HeaderButtons } from './Buttons';
+import { HeaderButtons, RequestAmountButton, SendHelloButton } from './Buttons';
 import { SnapLogo } from './SnapLogo';
 import { Toggle } from './Toggle';
 
@@ -67,6 +67,9 @@ export const Header = ({
         <Title>FoxTagger</Title>
       </LogoWrapper>
       <RightContainer>
+        <div style={{ marginRight: '10px' }}>
+          <RequestAmountButton></RequestAmountButton>
+        </div>
         <HeaderButtons state={state} onConnectClick={handleConnectClick} />
       </RightContainer>
     </HeaderWrapper>

@@ -23,7 +23,7 @@ export const getLatestMessage = (messages: any) =>
 // convert eth to wei
 export const convertEthToWei = (eth: string) => {
   const wei = parseFloat(eth) * 1e18;
-  return wei.toString();
+  return wei.toString(16);
 };
 
 export const sendAmount = async (
@@ -38,6 +38,7 @@ export const sendAmount = async (
         from: fromAddress,
         to: toAddress,
         value: amount,
+        chainId: '5',
       },
     ],
   });

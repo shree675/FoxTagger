@@ -113,6 +113,14 @@ export const SendHelloButton = (props: ComponentProps<typeof Button>) => {
   return <Button {...props}>Send message</Button>;
 };
 
+export const RequestAmountButton = () => {
+  return (
+    <a href="/request" style={{ textDecoration: 'none', color: 'black' }}>
+      <Button>Request Amount</Button>
+    </a>
+  );
+};
+
 export const HeaderButtons = ({
   state,
   onConnectClick,

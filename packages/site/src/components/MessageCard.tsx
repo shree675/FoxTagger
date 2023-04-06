@@ -26,7 +26,11 @@ const MessageCard = ({ msg }: any) => {
       );
       let storage = await getStorage();
 
-      if (!storage?.[myAddress || 'empty']) {
+      // if (!storage?.[myAddress || 'empty']) {
+      //   storage = {};
+      // }
+
+      if (!storage) {
         storage = {};
       }
 
