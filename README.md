@@ -3,7 +3,7 @@
 Team ID: 57
 
 > **Note**  
-> Please refer to [final-latest](https://github.com/shree675/FoxTagger/tree/final-latest) branch to view and use the snap that is in accordance with [#21](https://github.com/MetaMask/template-snap-monorepo/pull/21) on the [official repo](https://github.com/MetaMask/template-snap-monorepo).
+> Please refer to [final-latest](https://github.com/shree675/FoxTagger/tree/final-latest) branch to view and use the snap that is in accordance with [#21](https://github.com/MetaMask/template-snap-monorepo/pull/21) on [the official repository](https://github.com/MetaMask/template-snap-monorepo).
 
 ## About Project
 FoxTagger is a Metamask snaps extension that facilitates the mapping of addresses with user defined tags to help users keep their expenditure in check by alerting and displaying usage analytics.  
